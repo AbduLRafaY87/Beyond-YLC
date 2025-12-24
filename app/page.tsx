@@ -8,7 +8,7 @@ import { Users, Globe, Rocket, Heart, Handshake, BarChart3, GraduationCap, Star,
 export default function Home() {
   const [scrollY, setScrollY] = useState(0)
   const [activeTestimonial, setActiveTestimonial] = useState(0)
-  const [floatingParticles, setFloatingParticles] = useState([])
+  const [floatingParticles, setFloatingParticles] = useState<Array<{left: string, top: string, animationDelay: string, animationDuration: string}>>([])
   const [twinkleParticles, setTwinkleParticles] = useState<Array<{left: string, top: string, animationDelay: string}>>([])
   const [mounted, setMounted] = useState(false)
 
