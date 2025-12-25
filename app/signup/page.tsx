@@ -1,31 +1,24 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { useAuth } from '@/lib/AuthContext'
-import { User, Mail, ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react'
+import { User, Mail, ArrowRight, Loader2, Eye, EyeOff, CheckCircle } from 'lucide-react'
 
-export default function LoginPage() {
+export default function SignupPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    confirmPassword: ''
   })
   const router = useRouter()
-  const { user } = useAuth()
 
-  // Redirect to profile if user is already authenticated
-  useEffect(() => {
-    if (user) {
-      router.push('/profile')
-    }
-  }, [user, router])
-
-  const loginWithGoogle = async () => {
+  const signupWithGoogle = async () => {
     try {
       setLoading(true)
       setError(null)
@@ -41,20 +34,31 @@ export default function LoginPage() {
         throw error
       }
     } catch (error: any) {
-      console.error('Login error:', error)
-      setError(error.message || 'An error occurred during login')
+      console.error('Signup error:', error)
+      setError(error.message || 'An error occurred during signup')
     } finally {
       setLoading(false)
     }
   }
 
-  const loginWithEmail = async (e: React.FormEvent) => {
+  const signupWithEmail = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
+
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long')
+      return
+    }
+
     try {
       setLoading(true)
       setError(null)
 
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password
       })
@@ -63,13 +67,12 @@ export default function LoginPage() {
         throw error
       }
 
-      // Wait a moment for auth state to propagate, then redirect
-      setTimeout(() => {
-        router.push('/profile')
-      }, 100)
+      // Show success message and redirect to login
+      alert('Account created successfully! Please check your email to verify your account.')
+      router.push('/login')
     } catch (error: any) {
-      console.error('Login error:', error)
-      setError(error.message || 'An error occurred during login')
+      console.error('Signup error:', error)
+      setError(error.message || 'An error occurred during signup')
     } finally {
       setLoading(false)
     }
@@ -81,8 +84,8 @@ export default function LoginPage() {
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center">
-            <h1 className="text-3xl font-black text-gray-900">Welcome Back</h1>
-            <p className="text-gray-600 mt-2">Sign in to your account</p>
+            <h1 className="text-3xl font-black text-gray-900">Join Beyond YLC</h1>
+            <p className="text-gray-600 mt-2">Create your account</p>
           </div>
         </div>
       </div>
@@ -95,10 +98,10 @@ export default function LoginPage() {
               <User className="w-10 h-10" />
             </div>
             <h2 className="text-2xl font-black mb-2">Beyond YLC</h2>
-            <p className="text-purple-200">Connect with your community</p>
+            <p className="text-purple-200">Join our community</p>
           </div>
 
-          {/* Login Form */}
+          {/* Signup Form */}
           <div className="px-8 py-8">
             {error && (
               <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -108,7 +111,7 @@ export default function LoginPage() {
 
             <div className="space-y-6">
               <button
-                onClick={loginWithGoogle}
+                onClick={signupWithGoogle}
                 disabled={loading}
                 className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white border-2 border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -123,7 +126,7 @@ export default function LoginPage() {
                   </svg>
                 )}
                 <span className="text-gray-700 font-medium">
-                  {loading ? 'Signing in...' : 'Continue with Google'}
+                  {loading ? 'Creating account...' : 'Continue with Google'}
                 </span>
               </button>
 
@@ -136,7 +139,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <form onSubmit={loginWithEmail} className="space-y-4">
+              <form onSubmit={signupWithEmail} className="space-y-4">
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                     Email Address
@@ -166,7 +169,7 @@ export default function LoginPage() {
                       value={formData.password}
                       onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
                       className="w-full pl-3 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      placeholder="Enter your password"
+                      placeholder="Create a password (min. 6 characters)"
                       required
                     />
                     <button
@@ -179,14 +182,27 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="text-sm">
-                    <Link
-                      href="/forgot-password"
-                      className="text-purple-600 hover:text-purple-700 font-medium hover:underline"
+                <div>
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                    Confirm Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      value={formData.confirmPassword}
+                      onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                      className="w-full pl-3 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      placeholder="Confirm your password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                     >
-                      Forgot password?
-                    </Link>
+                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
                   </div>
                 </div>
 
@@ -198,22 +214,22 @@ export default function LoginPage() {
                   {loading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
-                    <ArrowRight className="w-4 h-4" />
+                    <CheckCircle className="w-4 h-4" />
                   )}
                   <span className="font-medium">
-                    {loading ? 'Signing in...' : 'Sign In'}
+                    {loading ? 'Creating account...' : 'Create Account'}
                   </span>
                 </button>
               </form>
 
               <div className="text-center">
                 <p className="text-gray-600 text-sm">
-                  Don't have an account?{' '}
+                  Already have an account?{' '}
                   <Link
-                    href="/signup"
+                    href="/login"
                     className="text-purple-600 hover:text-purple-700 font-medium hover:underline"
                   >
-                    Sign up here
+                    Sign in here
                   </Link>
                 </p>
               </div>
@@ -222,7 +238,7 @@ export default function LoginPage() {
             {/* Footer */}
             <div className="mt-8 pt-6 border-t border-gray-200">
               <p className="text-xs text-gray-500 text-center">
-                By signing in, you agree to our{' '}
+                By creating an account, you agree to our{' '}
                 <Link href="/terms" className="text-purple-600 hover:underline">
                   Terms of Service
                 </Link>{' '}

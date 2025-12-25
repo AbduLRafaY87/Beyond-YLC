@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { Menu, X, ChevronDown, Bell, User, LogOut, Settings } from 'lucide-react'
+import { useAuth } from '@/lib/AuthContext'
 
 // Mock supabase for demo - replace with actual import
 const supabase = {
@@ -18,18 +19,42 @@ type NavLink = {
   subLinks?: { label: string; href: string; description?: string }[]
 }
 
-export default function Navbar({ session }: { session: any }) {
+export default function Navbar() {
+  const { user, profileImage, signOut } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [profileOpen, setProfileOpen] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
+  const profileRef = useRef<HTMLDivElement>(null)
+
+  const handleSignOut = async () => {
+    await signOut()
+    router.push('/login')
+  }
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10)
     window.addEventListener('scroll', onScroll)
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setProfileOpen(false)
+      }
+    }
+
+    if (profileOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [profileOpen])
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'
@@ -146,13 +171,13 @@ export default function Navbar({ session }: { session: any }) {
 
             {/* Right Side Actions */}
             <div className="hidden lg:flex items-center space-x-3">
-              {session ? (
+              {user ? (
                 <>
                   {/* Notifications */}
                   <button
                     className={`p-2 rounded-lg transition-all duration-200 relative ${
-                      scrolled 
-                        ? 'text-gray-700 hover:bg-blue-50 hover:text-blue-600' 
+                      scrolled
+                        ? 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
                         : 'text-white hover:bg-white/20'
                     }`}
                   >
@@ -161,17 +186,27 @@ export default function Navbar({ session }: { session: any }) {
                   </button>
 
                   {/* Profile Dropdown */}
-                  <div className="relative">
+                  <div className="relative" ref={profileRef}>
                     <button
                       onClick={() => setProfileOpen(!profileOpen)}
                       className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 ${
-                        scrolled 
-                          ? 'text-gray-700 hover:bg-blue-50' 
+                        scrolled
+                          ? 'text-gray-700 hover:bg-blue-50'
                           : 'text-white hover:bg-white/20'
                       }`}
                     >
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-                        <User className="w-5 h-5 text-white" />
+                      <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white/20">
+                        {profileImage ? (
+                          <img
+                            src={profileImage}
+                            alt="Profile"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                            <User className="w-5 h-5 text-white" />
+                          </div>
+                        )}
                       </div>
                       <ChevronDown className="w-4 h-4" />
                     </button>
@@ -179,8 +214,10 @@ export default function Navbar({ session }: { session: any }) {
                     {profileOpen && (
                       <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden">
                         <div className="px-4 py-3 border-b border-gray-100">
-                          <div className="font-medium text-gray-900">John Doe</div>
-                          <div className="text-sm text-gray-500">john@example.com</div>
+                          <div className="font-medium text-gray-900">
+                            {user.user_metadata?.first_name} {user.user_metadata?.last_name}
+                          </div>
+                          <div className="text-sm text-gray-500">{user.email}</div>
                         </div>
                         <Link href="/profile" className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors">
                           <User className="w-4 h-4 text-gray-600" />
@@ -191,7 +228,7 @@ export default function Navbar({ session }: { session: any }) {
                           <span className="text-gray-700">Settings</span>
                         </Link>
                         <button
-                          onClick={() => supabase.auth.signOut()}
+                          onClick={handleSignOut}
                           className="flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors w-full text-left border-t border-gray-100"
                         >
                           <LogOut className="w-4 h-4 text-red-600" />
@@ -205,8 +242,8 @@ export default function Navbar({ session }: { session: any }) {
                 <Link
                   href="/login"
                   className={`px-5 py-2 rounded-lg font-medium transition-all duration-200 ${
-                    scrolled 
-                      ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl' 
+                    scrolled
+                      ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
                       : 'bg-white text-blue-600 hover:bg-blue-50 shadow-lg hover:shadow-xl'
                   } hover:scale-105`}
                 >
@@ -268,7 +305,7 @@ export default function Navbar({ session }: { session: any }) {
 
               {/* Mobile Auth Actions */}
               <div className="pt-6 mt-6 border-t border-gray-200 space-y-2">
-                {session ? (
+                {user ? (
                   <>
                     <Link
                       href="/profile"
@@ -287,7 +324,7 @@ export default function Navbar({ session }: { session: any }) {
                       <span>Settings</span>
                     </Link>
                     <button
-                      onClick={() => supabase.auth.signOut()}
+                      onClick={handleSignOut}
                       className="flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 w-full text-left"
                     >
                       <LogOut className="w-5 h-5" />
