@@ -5,10 +5,29 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/AuthContext'
 import {
-  User, Mail, Calendar, MapPin, Briefcase, LogOut, Edit3, Save, X,
-  Camera, Globe, Github, Linkedin, Twitter, Award, Target, Users,
-  TrendingUp, Star, Settings, Shield, Bell, Eye, Lock, Upload,
-  CheckCircle, AlertCircle, Plus, Minus, Heart, MessageCircle
+  User,
+  Mail,
+  Calendar,
+  MapPin,
+  Briefcase,
+  LogOut,
+  Edit3,
+  Save,
+  X,
+  Camera,
+  Globe,
+  Github,
+  Linkedin,
+  Twitter,
+  Target,
+  Settings,
+  Shield,
+  Bell,
+  Lock,
+  TrendingUp,
+  Award,
+  Heart,
+  CheckCircle
 } from 'lucide-react'
 
 export default function Profile() {
@@ -19,6 +38,8 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState('profile')
   const [profileImage, setProfileImage] = useState<string | null>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
+  const [interestsInput, setInterestsInput] = useState('')
+  const [skillsInput, setSkillsInput] = useState('')
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -33,7 +54,6 @@ export default function Profile() {
     occupation: '',
     organization: '',
     skills: [] as string[],
-    achievements: [] as string[],
     privacy: 'public' as 'public' | 'private',
     notifications: {
       email: true,
@@ -46,9 +66,7 @@ export default function Profile() {
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
-    { id: 'settings', label: 'Settings', icon: Settings },
-    { id: 'activity', label: 'Activity', icon: TrendingUp },
-    { id: 'achievements', label: 'Achievements', icon: Award }
+    { id: 'settings', label: 'Settings', icon: Settings }
   ]
 
   const getProfile = async () => {
@@ -57,7 +75,7 @@ export default function Profile() {
     try {
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('id, full_name, ylc_batch, interests, bio, location, website, github, linkedin, twitter, occupation, organization, skills, achievements, privacy, notifications, avatar_url, created_at, updated_at')
+        .select('id, full_name, ylc_batch, interests, bio, location, website, github, linkedin, twitter, occupation, organization, skills, privacy, notifications, avatar_url, created_at, updated_at')
         .eq('id', authUser.id)
         .single()
 
@@ -82,7 +100,6 @@ export default function Profile() {
         occupation: profile?.occupation || '',
         organization: profile?.organization || '',
         skills: profile?.skills || [],
-        achievements: profile?.achievements || [],
         privacy: profile?.privacy || 'public',
         notifications: profile?.notifications || {
           email: true,
@@ -110,7 +127,6 @@ export default function Profile() {
         occupation: '',
         organization: '',
         skills: [],
-        achievements: [],
         privacy: 'public',
         notifications: {
           email: true,
@@ -150,7 +166,7 @@ export default function Profile() {
   const handleUpdateProfile = async () => {
     try {
       // Update or insert profile in profiles table
-      const { error } = await supabase
+      const result = await supabase
         .from('profiles')
         .upsert({
           id: authUser.id,
@@ -166,16 +182,15 @@ export default function Profile() {
           occupation: formData.occupation,
           organization: formData.organization,
           skills: formData.skills,
-          achievements: formData.achievements,
           privacy: formData.privacy,
           notifications: formData.notifications
         })
 
-      if (error) throw error
+      if (result.error) throw result.error
 
       setEditing(false)
       await getProfile() // Refresh profile data
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error updating profile:', error)
     }
   }
@@ -321,26 +336,6 @@ export default function Profile() {
                     )}
                   </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Profile Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-4 sm:px-8">
-              <div className="bg-white p-4 rounded-lg border border-gray-200 text-center">
-                <div className="text-2xl font-bold text-purple-600">12</div>
-                <div className="text-sm text-gray-600">Projects</div>
-              </div>
-              <div className="bg-white p-4 rounded-lg border border-gray-200 text-center">
-                <div className="text-2xl font-bold text-purple-600">8</div>
-                <div className="text-sm text-gray-600">Reflections</div>
-              </div>
-              <div className="bg-white p-4 rounded-lg border border-gray-200 text-center">
-                <div className="text-2xl font-bold text-purple-600">24</div>
-                <div className="text-sm text-gray-600">Connections</div>
-              </div>
-              <div className="bg-white p-4 rounded-lg border border-gray-200 text-center">
-                <div className="text-2xl font-bold text-purple-600">156</div>
-                <div className="text-sm text-gray-600">Contributions</div>
               </div>
             </div>
 
@@ -499,16 +494,64 @@ export default function Profile() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Interests</label>
                     {editing ? (
-                      <input
-                        type="text"
-                        value={formData.interests.join(', ')}
-                        onChange={(e) => setFormData(prev => ({
-                          ...prev,
-                          interests: e.target.value.split(',').map(s => s.trim()).filter(s => s)
-                        }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="e.g., Technology, Education, Environment (comma separated)"
-                      />
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={interestsInput}
+                            onChange={(e) => setInterestsInput(e.target.value)}
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            placeholder="Add an interest"
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault()
+                                if (interestsInput.trim()) {
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    interests: [...prev.interests, interestsInput.trim()]
+                                  }))
+                                  setInterestsInput('')
+                                }
+                              }
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (interestsInput.trim()) {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  interests: [...prev.interests, interestsInput.trim()]
+                                }))
+                                setInterestsInput('')
+                              }
+                            }}
+                            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                          >
+                            Add
+                          </button>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {formData.interests.map((interest, index) => (
+                            <span
+                              key={index}
+                              className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-800 text-sm font-medium rounded-full"
+                            >
+                              {interest}
+                              <button
+                                type="button"
+                                onClick={() => setFormData(prev => ({
+                                  ...prev,
+                                  interests: prev.interests.filter((_, i) => i !== index)
+                                }))}
+                                className="ml-1 text-purple-600 hover:text-purple-800"
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
                     ) : (
                       <div className="flex flex-wrap gap-2 py-2">
                         {formData.interests.length > 0 ? (
@@ -530,16 +573,64 @@ export default function Profile() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Skills</label>
                     {editing ? (
-                      <input
-                        type="text"
-                        value={formData.skills.join(', ')}
-                        onChange={(e) => setFormData(prev => ({
-                          ...prev,
-                          skills: e.target.value.split(',').map(s => s.trim()).filter(s => s)
-                        }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="e.g., JavaScript, React, Node.js (comma separated)"
-                      />
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={skillsInput}
+                            onChange={(e) => setSkillsInput(e.target.value)}
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            placeholder="Add a skill"
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault()
+                                if (skillsInput.trim()) {
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    skills: [...prev.skills, skillsInput.trim()]
+                                  }))
+                                  setSkillsInput('')
+                                }
+                              }
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (skillsInput.trim()) {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  skills: [...prev.skills, skillsInput.trim()]
+                                }))
+                                setSkillsInput('')
+                              }
+                            }}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                          >
+                            Add
+                          </button>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {formData.skills.map((skill, index) => (
+                            <span
+                              key={index}
+                              className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full"
+                            >
+                              {skill}
+                              <button
+                                type="button"
+                                onClick={() => setFormData(prev => ({
+                                  ...prev,
+                                  skills: prev.skills.filter((_, i) => i !== index)
+                                }))}
+                                className="ml-1 text-blue-600 hover:text-blue-800"
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
                     ) : (
                       <div className="flex flex-wrap gap-2 py-2">
                         {formData.skills.length > 0 ? (
@@ -717,69 +808,7 @@ export default function Profile() {
           </div>
         )
 
-      case 'activity':
-        return (
-          <div className="px-8 py-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-8">Recent Activity</h3>
-            <div className="space-y-4">
-              {[
-                { action: 'Created a new project', time: '2 hours ago', icon: Plus },
-                { action: 'Updated profile information', time: '1 day ago', icon: Edit3 },
-                { action: 'Joined YLC 2024 batch', time: '3 days ago', icon: Users },
-                { action: 'Shared a reflection', time: '1 week ago', icon: MessageCircle },
-                { action: 'Earned "Active Contributor" badge', time: '2 weeks ago', icon: Award }
-              ].map((activity, index) => (
-                <div key={index} className="flex items-center gap-4 p-4 bg-white rounded-lg border border-gray-200">
-                  <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                    <activity.icon className="w-5 h-5 text-purple-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-gray-900 font-medium">{activity.action}</p>
-                    <p className="text-sm text-gray-600">{activity.time}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )
 
-      case 'achievements':
-        return (
-          <div className="px-8 py-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-8">Achievements & Badges</h3>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[
-                { title: 'First Project', description: 'Created your first project', icon: Star, earned: true },
-                { title: 'Active Contributor', description: 'Made 10+ contributions', icon: TrendingUp, earned: true },
-                { title: 'Community Builder', description: 'Helped 5+ community members', icon: Users, earned: true },
-                { title: 'Reflection Master', description: 'Shared 20+ reflections', icon: Heart, earned: false },
-                { title: 'Mentor', description: 'Mentored 3+ people', icon: Award, earned: false },
-                { title: 'Innovation Leader', description: 'Led an innovative project', icon: Target, earned: false }
-              ].map((achievement, index) => (
-                <div
-                  key={index}
-                  className={`p-6 rounded-lg border-2 ${achievement.earned
-                    ? 'border-purple-200 bg-purple-50'
-                    : 'border-gray-200 bg-gray-50 opacity-60'
-                    }`}
-                >
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${achievement.earned ? 'bg-purple-100' : 'bg-gray-100'
-                      }`}>
-                      <achievement.icon className={`w-6 h-6 ${achievement.earned ? 'text-purple-600' : 'text-gray-400'
-                        }`} />
-                    </div>
-                    {achievement.earned && (
-                      <CheckCircle className="w-5 h-5 text-green-500" />
-                    )}
-                  </div>
-                  <h4 className="font-semibold text-gray-900 mb-1">{achievement.title}</h4>
-                  <p className="text-sm text-gray-600">{achievement.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )
 
       default:
         return null
@@ -797,7 +826,7 @@ export default function Profile() {
   return (
     <div className="min-h-screen bg-gray-50 pt-16 sm:pt-20 pb-8 sm:pb-12">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      {/* <div className="bg-white shadow-sm border-b">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <h1 className="text-2xl sm:text-3xl font-black text-gray-900">My Profile</h1>
@@ -810,7 +839,7 @@ export default function Profile() {
             </button>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Tab Navigation */}

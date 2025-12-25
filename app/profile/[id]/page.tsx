@@ -142,10 +142,10 @@ export default function EnhancedProfilePage() {
         <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl overflow-hidden">
           {/* Cover Image with Gradient */}
           <div className="relative z-0 h-24 sm:h-32 lg:h-40">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 z-0"></div>
+            <div className="absolute inset-0 z-0"></div>
 
             {/* Share Button */}
-            <div className="absolute top-3 right-3 sm:top-6 sm:right-6">
+            <div className="absolute right-3 sm:top-6 sm:right-6">
               <div className="relative">
                 <button
                   onClick={handleShare}
@@ -267,10 +267,10 @@ export default function EnhancedProfilePage() {
                             </>
                           )}
                         </button>
-                        <button className="inline-flex items-center gap-2 bg-white border-2 border-gray-300 text-gray-700 px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-medium hover:bg-gray-50 hover:border-gray-400 transition-all shadow-lg hover:shadow-xl hover:scale-105 text-sm sm:text-base">
+                        {/* <button className="inline-flex items-center gap-2 bg-white border-2 border-gray-300 text-gray-700 px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-medium hover:bg-gray-50 hover:border-gray-400 transition-all shadow-lg hover:shadow-xl hover:scale-105 text-sm sm:text-base">
                           <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                           Message
-                        </button>
+                        </button> */}
                       </>
                     )}
                   </div>
