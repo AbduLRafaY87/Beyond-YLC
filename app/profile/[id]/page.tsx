@@ -127,44 +127,44 @@ export default function EnhancedProfilePage() {
   const isOwnProfile = user?.id === profile.id
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 pt-20 pb-12">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 pt-16 sm:pt-20 pb-8 sm:pb-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Back Button */}
         <Link
           href="/people"
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors group"
+          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 sm:mb-6 transition-colors group text-sm sm:text-base"
         >
-          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+          <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 group-hover:-translate-x-1 transition-transform" />
           Back to People
         </Link>
 
         {/* Main Profile Card */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl overflow-hidden">
           {/* Cover Image with Gradient */}
-          <div className="relative z-0 h-32 ">
-            <div className="absolute inset-0  z-0"></div>
+          <div className="relative z-0 h-24 sm:h-32 lg:h-40">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 z-0"></div>
 
             {/* Share Button */}
-            <div className="absolute top-6 right-6">
+            <div className="absolute top-3 right-3 sm:top-6 sm:right-6">
               <div className="relative">
                 <button
                   onClick={handleShare}
-                  className="p-3 bg-white/90 backdrop-blur-sm rounded-xl hover:bg-white transition-all shadow-lg hover:shadow-xl"
+                  className="p-2 sm:p-3 bg-white/90 backdrop-blur-sm rounded-lg sm:rounded-xl hover:bg-white transition-all shadow-lg hover:shadow-xl"
                 >
-                  <Share2 className="w-5 h-5 text-gray-700" />
+                  <Share2 className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" />
                 </button>
                 {showShareMenu && (
-                  <div className="absolute top-full right-0 mt-2 bg-white rounded-xl shadow-2xl p-2 min-w-[180px] z-20 border border-gray-100">
+                  <div className="absolute top-full right-0 mt-2 bg-white rounded-lg sm:rounded-xl shadow-2xl p-2 min-w-[160px] sm:min-w-[180px] z-20 border border-gray-100">
                     <button
                       onClick={copyProfileLink}
-                      className="w-full text-left px-4 py-2.5 hover:bg-gray-50 rounded-lg text-sm transition-colors"
+                      className="w-full text-left px-3 sm:px-4 py-2 hover:bg-gray-50 rounded-md sm:rounded-lg text-sm transition-colors"
                     >
                       Copy Link
                     </button>
-                    <button className="w-full text-left px-4 py-2.5 hover:bg-gray-50 rounded-lg text-sm transition-colors">
+                    <button className="w-full text-left px-3 sm:px-4 py-2 hover:bg-gray-50 rounded-md sm:rounded-lg text-sm transition-colors">
                       Share via Email
                     </button>
-                    <button className="w-full text-left px-4 py-2.5 hover:bg-gray-50 rounded-lg text-sm transition-colors">
+                    <button className="w-full text-left px-3 sm:px-4 py-2 hover:bg-gray-50 rounded-md sm:rounded-lg text-sm transition-colors">
                       Download QR Code
                     </button>
                   </div>
@@ -173,13 +173,13 @@ export default function EnhancedProfilePage() {
             </div>
           </div>
 
-          <div className="px-6 sm:px-10 pb-8">
+          <div className="px-4 sm:px-6 lg:px-10 pb-6 sm:pb-8">
             {/* Profile Header Section */}
-            <div className="-mt-24 mb-8">
-              <div className="flex flex-col sm:flex-row items-start gap-6">
+            <div className="-mt-16 sm:-mt-20 lg:-mt-24 mb-6 sm:mb-8">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
                 {/* Avatar */}
                 <div className="relative flex-shrink-0">
-                  <div className="w-48 h-48 rounded-2xl overflow-hidden border-4 border-white bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-2xl">
+                  <div className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 xl:w-48 lg:h-40 xl:h-48 rounded-xl sm:rounded-2xl overflow-hidden border-4 border-white bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-2xl">
                     {profile.avatar_url ? (
                       <img
                         src={profile.avatar_url}
@@ -187,90 +187,88 @@ export default function EnhancedProfilePage() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <span className="text-white font-bold text-6xl">
+                      <span className="text-white font-bold text-2xl sm:text-3xl lg:text-4xl xl:text-6xl">
                         {profile.full_name?.split(' ').map(n => n[0]).join('').slice(0, 2)}
                       </span>
                     )}
                   </div>
                   {/* Online Status */}
-                  <div className="absolute bottom-3 right-3 w-7 h-7 bg-green-500 rounded-full border-4 border-white shadow-lg"></div>
+                  <div className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 lg:bottom-3 lg:right-3 w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7 bg-green-500 rounded-full border-3 sm:border-4 border-white shadow-lg"></div>
                 </div>
 
                 {/* Profile Info */}
-                <div className="flex-1 pt-6">
-                  <div className="flex items-start justify-between gap-4 mb-4">
-                    <div>
-                      <h1 className="text-4xl font-bold text-gray-900 mb-3">
-                        {profile.full_name}
-                      </h1>
+                <div className="flex-1 text-center sm:text-left pt-2 sm:pt-6">
+                  <div className="mb-4">
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 mb-2 sm:mb-3 leading-tight">
+                      {profile.full_name}
+                    </h1>
 
-                      {profile.occupation && (
-                        <div className="flex items-center gap-2 text-lg text-gray-700 mb-3">
-                          <Briefcase className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                          <span className="font-medium">{profile.occupation}</span>
-                          {profile.organization && (
-                            <>
-                              <span className="text-gray-400">at</span>
-                              <span className="font-medium text-blue-600">{profile.organization}</span>
-                            </>
-                          )}
+                    {profile.occupation && (
+                      <div className="flex items-center justify-center sm:justify-start gap-2 text-sm sm:text-base lg:text-lg text-gray-700 mb-3">
+                        <Briefcase className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-blue-600 flex-shrink-0" />
+                        <span className="font-medium">{profile.occupation}</span>
+                        {profile.organization && (
+                          <>
+                            <span className="text-gray-400 hidden sm:inline">at</span>
+                            <span className="font-medium text-blue-600">{profile.organization}</span>
+                          </>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-4 text-gray-600">
+                      {profile.location && (
+                        <div className="flex items-center gap-1 sm:gap-1.5">
+                          <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                          <span className="text-xs sm:text-sm">{profile.location}</span>
                         </div>
                       )}
-
-                      <div className="flex flex-wrap items-center gap-4 text-gray-600">
-                        {profile.location && (
-                          <div className="flex items-center gap-1.5">
-                            <MapPin className="w-4 h-4 flex-shrink-0" />
-                            <span className="text-sm">{profile.location}</span>
-                          </div>
-                        )}
-                        {profile.ylc_batch && (
-                          <div className="flex items-center gap-1.5 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
-                            <Star className="w-4 h-4" />
-                            YLC {profile.ylc_batch}
-                          </div>
-                        )}
-                        <div className="flex items-center gap-1.5 text-sm">
-                          <Calendar className="w-4 h-4 flex-shrink-0" />
-                          Joined {formatDate(profile.created_at)}
+                      {profile.ylc_batch && (
+                        <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-0.5 sm:py-1 bg-purple-100 text-purple-700 rounded-full text-xs sm:text-sm font-medium">
+                          <Star className="w-3 h-3 sm:w-4 sm:h-4" />
+                          YLC {profile.ylc_batch}
                         </div>
+                      )}
+                      <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm">
+                        <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                        <span className="hidden sm:inline">Joined </span>{formatDate(profile.created_at)}
                       </div>
                     </div>
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex gap-3 flex-wrap">
+                  <div className="flex gap-2 sm:gap-3 justify-center sm:justify-start flex-wrap">
                     {isOwnProfile ? (
                       <Link
                         href="/profile"
-                        className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl hover:scale-105"
+                        className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-medium hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl hover:scale-105 text-sm sm:text-base"
                       >
-                        <Edit className="w-4 h-4" />
+                        <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
                         Edit Profile
                       </Link>
                     ) : (
                       <>
                         <button
                           onClick={handleFollow}
-                          className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all shadow-lg hover:shadow-xl hover:scale-105 ${isFollowing
+                          className={`inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-medium transition-all shadow-lg hover:shadow-xl hover:scale-105 text-sm sm:text-base ${isFollowing
                               ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                               : 'bg-blue-600 text-white hover:bg-blue-700'
                             }`}
                         >
                           {isFollowing ? (
                             <>
-                              <CheckCircle2 className="w-4 h-4" />
+                              <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4" />
                               Following
                             </>
                           ) : (
                             <>
-                              <UserPlus className="w-4 h-4" />
+                              <UserPlus className="w-3 h-3 sm:w-4 sm:h-4" />
                               Follow
                             </>
                           )}
                         </button>
-                        <button className="inline-flex items-center gap-2 bg-white border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-400 transition-all shadow-lg hover:shadow-xl hover:scale-105">
-                          <MessageCircle className="w-4 h-4" />
+                        <button className="inline-flex items-center gap-2 bg-white border-2 border-gray-300 text-gray-700 px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-medium hover:bg-gray-50 hover:border-gray-400 transition-all shadow-lg hover:shadow-xl hover:scale-105 text-sm sm:text-base">
+                          <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                           Message
                         </button>
                       </>
@@ -281,32 +279,32 @@ export default function EnhancedProfilePage() {
             </div>
 
             {/* Stats Bar */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8 p-5 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8 p-4 sm:p-5 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg sm:rounded-xl border border-blue-100">
               <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-1">{profile.skills?.length || 0}</div>
-                <div className="text-sm text-gray-600 flex items-center justify-center gap-1.5">
-                  <Zap className="w-4 h-4" />
+                <div className="text-2xl sm:text-3xl font-bold text-blue-600 mb-1">{profile.skills?.length || 0}</div>
+                <div className="text-xs sm:text-sm text-gray-600 flex items-center justify-center gap-1 sm:gap-1.5">
+                  <Zap className="w-3 h-3 sm:w-4 sm:h-4" />
                   Skills
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-purple-600 mb-1">{profile.interests?.length || 0}</div>
-                <div className="text-sm text-gray-600 flex items-center justify-center gap-1.5">
-                  <Target className="w-4 h-4" />
+                <div className="text-2xl sm:text-3xl font-bold text-purple-600 mb-1">{profile.interests?.length || 0}</div>
+                <div className="text-xs sm:text-sm text-gray-600 flex items-center justify-center gap-1 sm:gap-1.5">
+                  <Target className="w-3 h-3 sm:w-4 sm:h-4" />
                   Interests
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-green-600 mb-1">{profile.achievements?.length || 0}</div>
-                <div className="text-sm text-gray-600 flex items-center justify-center gap-1.5">
-                  <Award className="w-4 h-4" />
+                <div className="text-2xl sm:text-3xl font-bold text-green-600 mb-1">{profile.achievements?.length || 0}</div>
+                <div className="text-xs sm:text-sm text-gray-600 flex items-center justify-center gap-1 sm:gap-1.5">
+                  <Award className="w-3 h-3 sm:w-4 sm:h-4" />
                   Achievements
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-orange-600 mb-1">{getDaysActive()}</div>
-                <div className="text-sm text-gray-600 flex items-center justify-center gap-1.5">
-                  <Clock className="w-4 h-4" />
+                <div className="text-2xl sm:text-3xl font-bold text-orange-600 mb-1">{getDaysActive()}</div>
+                <div className="text-xs sm:text-sm text-gray-600 flex items-center justify-center gap-1 sm:gap-1.5">
+                  <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
                   Days Active
                 </div>
               </div>
@@ -314,10 +312,10 @@ export default function EnhancedProfilePage() {
 
             {/* Tabs */}
             <div className="border-b border-gray-200 mb-8">
-              <div className="flex gap-8">
+              <div className="flex gap-4 sm:gap-8 overflow-x-auto">
                 <button
                   onClick={() => setActiveTab('about')}
-                  className={`pb-4 font-semibold transition-colors relative ${activeTab === 'about' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+                  className={`pb-4 font-semibold transition-colors relative whitespace-nowrap ${activeTab === 'about' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
                     }`}
                 >
                   About
@@ -327,7 +325,7 @@ export default function EnhancedProfilePage() {
                 </button>
                 <button
                   onClick={() => setActiveTab('activity')}
-                  className={`pb-4 font-semibold transition-colors relative ${activeTab === 'activity' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+                  className={`pb-4 font-semibold transition-colors relative whitespace-nowrap ${activeTab === 'activity' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
                     }`}
                 >
                   Activity
@@ -337,7 +335,7 @@ export default function EnhancedProfilePage() {
                 </button>
                 <button
                   onClick={() => setActiveTab('connections')}
-                  className={`pb-4 font-semibold transition-colors relative ${activeTab === 'connections' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+                  className={`pb-4 font-semibold transition-colors relative whitespace-nowrap ${activeTab === 'connections' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
                     }`}
                 >
                   Connections
@@ -350,30 +348,30 @@ export default function EnhancedProfilePage() {
 
             {/* Tab Content */}
             {activeTab === 'about' && (
-              <div className="space-y-8">
+              <div className="space-y-6 sm:space-y-8">
                 {/* Bio */}
                 {profile.bio && (
                   <div>
-                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                      <div className="w-1 h-6 bg-blue-600 rounded-full"></div>
+                    <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                      <div className="w-1 h-5 sm:h-6 bg-blue-600 rounded-full"></div>
                       About
                     </h2>
-                    <p className="text-gray-700 leading-relaxed text-lg">{profile.bio}</p>
+                    <p className="text-gray-700 leading-relaxed text-base sm:text-lg">{profile.bio}</p>
                   </div>
                 )}
 
                 {/* Skills */}
                 {profile.skills && profile.skills.length > 0 && (
                   <div>
-                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                      <div className="w-1 h-6 bg-blue-600 rounded-full"></div>
+                    <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                      <div className="w-1 h-5 sm:h-6 bg-blue-600 rounded-full"></div>
                       Skills & Expertise
                     </h2>
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-wrap gap-2 sm:gap-3">
                       {profile.skills.map((skill, index) => (
                         <span
                           key={index}
-                          className="px-4 py-2.5 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 rounded-xl text-sm font-medium border border-blue-200 hover:shadow-md transition-all cursor-pointer hover:scale-105"
+                          className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium border border-blue-200 hover:shadow-md transition-all cursor-pointer hover:scale-105"
                         >
                           {skill}
                         </span>
@@ -385,15 +383,15 @@ export default function EnhancedProfilePage() {
                 {/* Interests */}
                 {profile.interests && profile.interests.length > 0 && (
                   <div>
-                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                      <div className="w-1 h-6 bg-purple-600 rounded-full"></div>
+                    <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                      <div className="w-1 h-5 sm:h-6 bg-purple-600 rounded-full"></div>
                       Interests & Passions
                     </h2>
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-wrap gap-2 sm:gap-3">
                       {profile.interests.map((interest, index) => (
                         <span
                           key={index}
-                          className="px-4 py-2.5 bg-gradient-to-r from-purple-50 to-purple-100 text-purple-800 rounded-xl text-sm font-medium border border-purple-200 hover:shadow-md transition-all cursor-pointer hover:scale-105"
+                          className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-purple-50 to-purple-100 text-purple-800 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium border border-purple-200 hover:shadow-md transition-all cursor-pointer hover:scale-105"
                         >
                           {interest}
                         </span>
@@ -405,20 +403,20 @@ export default function EnhancedProfilePage() {
                 {/* Achievements */}
                 {profile.achievements && profile.achievements.length > 0 && (
                   <div>
-                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                      <div className="w-1 h-6 bg-yellow-600 rounded-full"></div>
+                    <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                      <div className="w-1 h-5 sm:h-6 bg-yellow-600 rounded-full"></div>
                       Achievements & Recognition
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
                       {profile.achievements.map((achievement, index) => (
                         <div
                           key={index}
-                          className="group flex items-start gap-4 p-4 bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl hover:shadow-lg transition-all"
+                          className="group flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg sm:rounded-xl hover:shadow-lg transition-all"
                         >
-                          <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                            <Trophy className="w-5 h-5 text-white" />
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                            <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                           </div>
-                          <span className="text-gray-800 font-medium text-sm pt-0.5">{achievement}</span>
+                          <span className="text-gray-800 font-medium text-xs sm:text-sm pt-0.5">{achievement}</span>
                         </div>
                       ))}
                     </div>
@@ -428,23 +426,23 @@ export default function EnhancedProfilePage() {
                 {/* Social Links */}
                 {(profile.linkedin || profile.github || profile.website || profile.twitter) && (
                   <div>
-                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                      <div className="w-1 h-6 bg-green-600 rounded-full"></div>
+                    <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                      <div className="w-1 h-5 sm:h-6 bg-green-600 rounded-full"></div>
                       Connect & Follow
                     </h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-2 sm:gap-3">
                       {profile.linkedin && (
                         <a
                           href={profile.linkedin}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 rounded-xl hover:shadow-lg transition-all border border-blue-200 group"
+                          className="flex items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 rounded-lg sm:rounded-xl hover:shadow-lg transition-all border border-blue-200 group"
                         >
                           <div className="flex items-center gap-3">
-                            <Linkedin className="w-5 h-5" />
-                            <span className="font-medium">LinkedIn</span>
+                            <Linkedin className="w-4 h-4 sm:w-5 sm:h-5" />
+                            <span className="font-medium text-sm sm:text-base">LinkedIn</span>
                           </div>
-                          <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </a>
                       )}
                       {profile.github && (
@@ -452,13 +450,13 @@ export default function EnhancedProfilePage() {
                           href={profile.github}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 rounded-xl hover:shadow-lg transition-all border border-gray-200 group"
+                          className="flex items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 rounded-lg sm:rounded-xl hover:shadow-lg transition-all border border-gray-200 group"
                         >
                           <div className="flex items-center gap-3">
-                            <Github className="w-5 h-5" />
-                            <span className="font-medium">GitHub</span>
+                            <Github className="w-4 h-4 sm:w-5 sm:h-5" />
+                            <span className="font-medium text-sm sm:text-base">GitHub</span>
                           </div>
-                          <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </a>
                       )}
                       {profile.website && (
@@ -466,13 +464,13 @@ export default function EnhancedProfilePage() {
                           href={profile.website}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-green-100 text-green-700 rounded-xl hover:shadow-lg transition-all border border-green-200 group"
+                          className="flex items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-green-50 to-green-100 text-green-700 rounded-lg sm:rounded-xl hover:shadow-lg transition-all border border-green-200 group"
                         >
                           <div className="flex items-center gap-3">
-                            <Globe className="w-5 h-5" />
-                            <span className="font-medium">Website</span>
+                            <Globe className="w-4 h-4 sm:w-5 sm:h-5" />
+                            <span className="font-medium text-sm sm:text-base">Website</span>
                           </div>
-                          <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </a>
                       )}
                       {profile.twitter && (
@@ -480,13 +478,13 @@ export default function EnhancedProfilePage() {
                           href={profile.twitter}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-between p-4 bg-gradient-to-r from-sky-50 to-sky-100 text-sky-700 rounded-xl hover:shadow-lg transition-all border border-sky-200 group"
+                          className="flex items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-sky-50 to-sky-100 text-sky-700 rounded-lg sm:rounded-xl hover:shadow-lg transition-all border border-sky-200 group"
                         >
                           <div className="flex items-center gap-3">
-                            <Twitter className="w-5 h-5" />
-                            <span className="font-medium">Twitter</span>
+                            <Twitter className="w-4 h-4 sm:w-5 sm:h-5" />
+                            <span className="font-medium text-sm sm:text-base">Twitter</span>
                           </div>
-                          <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </a>
                       )}
                     </div>
@@ -496,47 +494,47 @@ export default function EnhancedProfilePage() {
             )}
 
             {activeTab === 'activity' && (
-              <div className="space-y-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                  <div className="w-1 h-6 bg-orange-600 rounded-full"></div>
+              <div className="space-y-4 sm:space-y-6">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
+                  <div className="w-1 h-5 sm:h-6 bg-orange-600 rounded-full"></div>
                   Recent Activity
                 </h2>
 
-                <div className="space-y-4">
-                  <div className="flex items-start gap-4 p-5 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-xl hover:shadow-md transition-shadow">
-                    <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-red-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Activity className="w-6 h-6 text-white" />
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-5 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg sm:rounded-xl hover:shadow-md transition-shadow">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Activity className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
-                    <div className="flex-1">
-                      <p className="text-gray-800 font-medium">Updated profile information</p>
-                      <p className="text-gray-600 text-sm mt-1">2 days ago</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4 p-5 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl hover:shadow-md transition-shadow">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Code className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-gray-800 font-medium">Contributed to open source project</p>
-                      <p className="text-gray-600 text-sm mt-1">1 week ago</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-gray-800 font-medium text-sm sm:text-base">Updated profile information</p>
+                      <p className="text-gray-600 text-xs sm:text-sm mt-1">2 days ago</p>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-4 p-5 bg-gradient-to-r from-green-50 to-teal-50 border border-green-200 rounded-xl hover:shadow-md transition-shadow">
-                    <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-teal-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <BookOpen className="w-6 h-6 text-white" />
+                  <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-5 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg sm:rounded-xl hover:shadow-md transition-shadow">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Code className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
-                    <div className="flex-1">
-                      <p className="text-gray-800 font-medium">Published a new reflection</p>
-                      <p className="text-gray-600 text-sm mt-1">2 weeks ago</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-gray-800 font-medium text-sm sm:text-base">Contributed to open source project</p>
+                      <p className="text-gray-600 text-xs sm:text-sm mt-1">1 week ago</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-5 bg-gradient-to-r from-green-50 to-teal-50 border border-green-200 rounded-lg sm:rounded-xl hover:shadow-md transition-shadow">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-400 to-teal-500 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+                      <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-gray-800 font-medium text-sm sm:text-base">Published a new reflection</p>
+                      <p className="text-gray-600 text-xs sm:text-sm mt-1">2 weeks ago</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="text-center py-8">
-                  <button className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl hover:scale-105">
-                    <Eye className="w-5 h-5" />
+                <div className="text-center py-6 sm:py-8">
+                  <button className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl hover:scale-105 text-sm sm:text-base">
+                    <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
                     View All Activity
                   </button>
                 </div>
@@ -571,47 +569,47 @@ export default function EnhancedProfilePage() {
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Connections</h3>
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-shadow">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-shadow gap-3">
                       <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                          <span className="text-white font-bold text-lg">JD</span>
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-white font-bold text-sm">JD</span>
                         </div>
-                        <div>
+                        <div className="min-w-0 flex-1">
                           <p className="font-semibold text-gray-900">John Doe</p>
                           <p className="text-sm text-gray-600">Software Engineer at Tech Corp</p>
                         </div>
                       </div>
-                      <button className="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                      <button className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
                         Message
                       </button>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-shadow">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-shadow gap-3">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center">
+                        <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center flex-shrink-0">
                           <span className="text-white font-bold text-sm">AS</span>
                         </div>
-                        <div>
+                        <div className="min-w-0 flex-1">
                           <p className="font-medium text-gray-900">Alice Smith</p>
                           <p className="text-sm text-gray-600">Product Manager at Startup Inc</p>
                         </div>
                       </div>
-                      <button className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors">
+                      <button className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors">
                         Message
                       </button>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-shadow">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-shadow gap-3">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0">
                           <span className="text-white font-bold text-sm">MB</span>
                         </div>
-                        <div>
+                        <div className="min-w-0 flex-1">
                           <p className="font-medium text-gray-900">Mike Brown</p>
                           <p className="text-sm text-gray-600">UX Designer at Design Studio</p>
                         </div>
                       </div>
-                      <button className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors">
+                      <button className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors">
                         Message
                       </button>
                     </div>

@@ -264,10 +264,10 @@ export default function Profile() {
         return (
           <div className="space-y-8">
             {/* Profile Header with Avatar Upload */}
-            <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-12 text-white relative">
-              <div className="flex items-center gap-6">
+            <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-4 sm:px-8 py-8 sm:py-12 text-white relative">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
                 <div className="relative">
-                  <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center overflow-hidden">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/20 rounded-full flex items-center justify-center overflow-hidden">
                     {profileImage ? (
                       <img
                         src={profileImage}
@@ -279,20 +279,20 @@ export default function Profile() {
                         }}
                       />
                     ) : (
-                      <User className="w-12 h-12" />
+                      <User className="w-10 h-10 sm:w-12 sm:h-12" />
                     )}
                     {uploadingImage && (
                       <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                        <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-white"></div>
                       </div>
                     )}
                   </div>
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploadingImage}
-                    className="absolute -bottom-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="absolute -bottom-2 -right-2 w-7 h-7 sm:w-8 sm:h-8 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Camera className="w-4 h-4 text-gray-700" />
+                    <Camera className="w-3 h-3 sm:w-4 sm:h-4 text-gray-700" />
                   </button>
                   <input
                     ref={fileInputRef}
@@ -303,19 +303,19 @@ export default function Profile() {
                     className="hidden"
                   />
                 </div>
-                <div className="flex-1">
-                  <h2 className="text-3xl font-black">
+                <div className="flex-1 text-center sm:text-left">
+                  <h2 className="text-2xl sm:text-3xl font-black">
                     {formData.fullName || 'Anonymous User'}
                   </h2>
-                  <p className="text-purple-200 mt-1">{formData.email}</p>
-                  <div className="flex items-center gap-4 mt-2">
-                    <div className="flex items-center gap-1 text-sm text-purple-200">
-                      <Calendar className="w-4 h-4" />
+                  <p className="text-purple-200 mt-1 text-sm sm:text-base">{formData.email}</p>
+                  <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 mt-2">
+                    <div className="flex items-center gap-1 text-xs sm:text-sm text-purple-200">
+                      <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                       Member since {user ? new Date(user.created_at).toLocaleDateString() : 'Recently'}
                     </div>
                     {formData.location && (
-                      <div className="flex items-center gap-1 text-sm text-purple-200">
-                        <MapPin className="w-4 h-4" />
+                      <div className="flex items-center gap-1 text-xs sm:text-sm text-purple-200">
+                        <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
                         {formData.location}
                       </div>
                     )}
@@ -325,7 +325,7 @@ export default function Profile() {
             </div>
 
             {/* Profile Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-4 sm:px-8">
               <div className="bg-white p-4 rounded-lg border border-gray-200 text-center">
                 <div className="text-2xl font-bold text-purple-600">12</div>
                 <div className="text-sm text-gray-600">Projects</div>
@@ -345,29 +345,29 @@ export default function Profile() {
             </div>
 
             {/* Profile Information */}
-            <div className="px-8">
-              <div className="flex items-center justify-between mb-8">
+            <div className="px-4 sm:px-8">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
                 <h3 className="text-2xl font-bold text-gray-900">Profile Information</h3>
                 {!editing ? (
                   <button
                     onClick={() => setEditing(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors w-full sm:w-auto"
                   >
                     <Edit3 className="w-4 h-4" />
                     Edit Profile
                   </button>
                 ) : (
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <button
                       onClick={handleUpdateProfile}
-                      className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors w-full sm:w-auto"
                     >
                       <Save className="w-4 h-4" />
                       Save Changes
                     </button>
                     <button
                       onClick={() => setEditing(false)}
-                      className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors w-full sm:w-auto"
                     >
                       <X className="w-4 h-4" />
                       Cancel
@@ -795,40 +795,40 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen mt-22 bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pt-16 sm:pt-20 pb-8 sm:pb-12">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-black text-gray-900">My Profile</h1>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <h1 className="text-2xl sm:text-3xl font-black text-gray-900">My Profile</h1>
             <button
               onClick={handleSignOut}
-              className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors text-sm sm:text-base"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
               Sign Out
             </button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Tab Navigation */}
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
+        <div className="bg-white rounded-lg sm:rounded-2xl shadow-lg overflow-hidden mb-6 sm:mb-8">
           <div className="border-b border-gray-200">
-            <nav className="flex">
+            <nav className="flex overflow-x-auto">
               {tabs.map((tab) => {
                 const Icon = tab.icon
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.id
+                    className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === tab.id
                       ? 'border-purple-500 text-purple-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                       }`}
                   >
-                    <Icon className="w-4 h-4" />
+                    <Icon className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                     {tab.label}
                   </button>
                 )
@@ -838,7 +838,7 @@ export default function Profile() {
         </div>
 
         {/* Tab Content */}
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div className="bg-white rounded-lg sm:rounded-2xl shadow-lg overflow-hidden">
           {renderTabContent()}
         </div>
       </div>
