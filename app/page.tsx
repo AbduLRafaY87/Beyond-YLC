@@ -186,14 +186,14 @@ export default function Home() {
         {/* Hero Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 text-center">
           <div className="mb-6 inline-block">
-            <span className="px-5 py-2 bg-white/10 backdrop-blur-xl rounded-full text-white text-sm font-medium border border-white/20 shadow-xl shadow-black/30 ring-1 ring-white/10">
+            <span className="px-3 sm:px-5 py-2 bg-white/10 backdrop-blur-xl rounded-full text-white text-xs sm:text-sm font-medium border border-white/20 shadow-xl shadow-black/30 ring-1 ring-white/10 whitespace-nowrap">
               🌟 Where 6 Days Become a Lifetime of Impact
             </span>
           </div>
 
 
-          <h1 className="text-4xl md:text-7xl font-black text-white mb-6 leading-tight">
-            <span className="block text-xl md:text-2xl font-normal text-blue-200 mb-3">
+          <h1 className="text-3xl md:text-6xl font-black text-white mb-6 leading-tight">
+            <span className="block text-lg md:text-xl font-normal text-blue-200 mb-3">
               A global, open community where young
             </span>
 
@@ -201,13 +201,13 @@ export default function Home() {
               change-makers
             </span>
 
-            <span className="block text-lg md:text-xl font-normal text-purple-200 mt-3">
+            <span className="block text-base md:text-lg font-normal text-purple-200 mt-3">
               connect, collaborate, and turn inspiration into real-world social action
             </span>
           </h1>
 
 
-          <p className="text-xl md:text-xl text-blue-100 mb-12 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl text-blue-100 mb-12 max-w-4xl mx-auto leading-relaxed">
             The Young Leaders Conference sparked your journey. Now, join a global movement
             where your Social Action Project finds support, collaboration, and exponential impact.
           </p>
@@ -268,10 +268,10 @@ export default function Home() {
               <div className="inline-block px-4 py-2 bg-red-100 text-red-600 rounded-full text-sm font-bold mb-6">
                 THE CHALLENGE
               </div>
-              <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 leading-tight">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 mb-6 leading-tight">
                 Amazing Ideas.<br />Isolated Impact.
               </h2>
-              <p className="text-xl text-gray-600 mb-6 leading-relaxed">
+              <p className="text-lg md:text-xl text-gray-600 mb-6 leading-relaxed">
                 After YLC, thousands of changemakers return home with powerful Social Action Projects.
                 But working in isolation limits what's possible.
               </p>
@@ -299,7 +299,7 @@ export default function Home() {
               <div className="inline-block px-4 py-2 bg-green-100 text-green-600 rounded-full text-sm font-bold mb-6">
                 THE SOLUTION
               </div>
-              <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 leading-tight">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 mb-6 leading-tight">
                 One Platform.<br />Infinite Possibilities.
               </h2>
               <p className="text-xl text-gray-600 mb-6 leading-relaxed">
@@ -346,13 +346,13 @@ export default function Home() {
                 SIMPLE PROCESS
               </span>
             </div>
-            <h2 className="text-5xl md:text-6xl font-black text-white mb-6 leading-tight">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-white mb-6 leading-tight">
               Your Journey to&nbsp;
               <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
                 Global Impact
               </span>
             </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto">
               Four powerful steps to transform your vision into collaborative action
             </p>
           </div>
@@ -436,7 +436,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="text-center mb-20">
-            <h2 className="text-5xl md:text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">
               Everything You Need to Succeed
             </h2>
             <p className="text-xl md:text-xl text-gray-600 max-w-3xl mx-auto">
