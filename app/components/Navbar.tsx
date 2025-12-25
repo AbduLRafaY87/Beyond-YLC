@@ -273,34 +273,18 @@ export default function Navbar() {
             <div className="px-4 py-6 space-y-1">
               {/* Mobile Nav Links */}
               {NAV_LINKS.map(link => (
-                <div key={link.href}>
-                  <Link
-                    href={link.href}
-                    className={`flex items-center justify-between px-4 py-3 rounded-lg font-medium ${
-                      isActive(link.href)
-                        ? 'bg-blue-50 text-blue-600'
-                        : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
-                    }`}
-                    onClick={() => !link.subLinks && setIsOpen(false)}
-                  >
-                    {link.label}
-                    {link.subLinks && <ChevronDown className="w-4 h-4" />}
-                  </Link>
-                  {link.subLinks && (
-                    <div className="ml-4 mt-1 space-y-1">
-                      {link.subLinks.map(subLink => (
-                        <Link
-                          key={subLink.href}
-                          href={subLink.href}
-                          className="block px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-blue-50 hover:text-blue-600"
-                          onClick={() => setIsOpen(false)}
-                        >
-                          {subLink.label}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`flex items-center px-4 py-3 rounded-lg font-medium ${
+                    isActive(link.href)
+                      ? 'bg-blue-50 text-blue-600'
+                      : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                  }`}
+                  onClick={() => setIsOpen(false)}
+                >
+                  {link.label}
+                </Link>
               ))}
 
               {/* Mobile Auth Actions */}
