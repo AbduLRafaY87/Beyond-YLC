@@ -88,8 +88,8 @@ export default function Profile() {
       setUser(profile || null)
 
       setFormData({
-        fullName: profile?.full_name || authUser.user_metadata?.full_name || '',
-        email: authUser.email || '',
+        fullName: profile?.full_name || authUser?.user_metadata?.full_name || '',
+        email: authUser?.email || '',
         ylcBatch: profile?.ylc_batch || '',
         interests: profile?.interests || [],
         bio: profile?.bio || '',
@@ -157,6 +157,8 @@ export default function Profile() {
   // ProtectedRoute handles authentication, so we can assume user is authenticated here
 
   const handleUpdateProfile = async () => {
+    if (!authUser?.id) return
+
     try {
       // Update or insert profile in profiles table
       const result = await supabase
@@ -189,7 +191,7 @@ export default function Profile() {
   }
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    if (!file) return
+    if (!file || !authUser?.id) return
 
     setUploadingImage(true)
     try {
