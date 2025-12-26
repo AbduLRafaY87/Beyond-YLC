@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/AuthContext'
+import ProtectedRoute from '@/app/components/ProtectedRoute'
 import {
   User,
   Mail,
@@ -153,15 +154,7 @@ export default function Profile() {
     }
   }, [])
 
-  if (!authUser || loading) {
-    return <p>Loading profile…</p>
-  }
-
-  if (!authUser?.id) {
-    console.error('Auth user not ready yet')
-    router.push('/login')
-    return
-  }
+  // ProtectedRoute handles authentication, so we can assume user is authenticated here
 
   const handleUpdateProfile = async () => {
     try {
@@ -824,53 +817,55 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16 sm:pt-20 pb-8 sm:pb-12">
-      {/* Header */}
-      {/* <div className="bg-white shadow-sm border-b">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <h1 className="text-2xl sm:text-3xl font-black text-gray-900">My Profile</h1>
-            <button
-              onClick={handleSignOut}
-              className="flex items-center gap-2 px-3 sm:px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors text-sm sm:text-base"
-            >
-              <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
-              Sign Out
-            </button>
+    <ProtectedRoute requireAuth={true}>
+      <div className="min-h-screen bg-gray-50 pt-16 sm:pt-20 pb-8 sm:pb-12">
+        {/* Header */}
+        {/* <div className="bg-white shadow-sm border-b">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <h1 className="text-2xl sm:text-3xl font-black text-gray-900">My Profile</h1>
+              <button
+                onClick={handleSignOut}
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors text-sm sm:text-base"
+              >
+                <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
+                Sign Out
+              </button>
+            </div>
           </div>
-        </div>
-      </div> */}
+        </div> */}
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-        {/* Tab Navigation */}
-        <div className="bg-white rounded-lg sm:rounded-2xl shadow-lg overflow-hidden mb-6 sm:mb-8">
-          <div className="border-b border-gray-200">
-            <nav className="flex overflow-x-auto">
-              {tabs.map((tab) => {
-                const Icon = tab.icon
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === tab.id
-                      ? 'border-purple-500 text-purple-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                      }`}
-                  >
-                    <Icon className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                    {tab.label}
-                  </button>
-                )
-              })}
-            </nav>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+          {/* Tab Navigation */}
+          <div className="bg-white rounded-lg sm:rounded-2xl shadow-lg overflow-hidden mb-6 sm:mb-8">
+            <div className="border-b border-gray-200">
+              <nav className="flex overflow-x-auto">
+                {tabs.map((tab) => {
+                  const Icon = tab.icon
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === tab.id
+                        ? 'border-purple-500 text-purple-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        }`}
+                    >
+                      <Icon className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                      {tab.label}
+                    </button>
+                  )
+                })}
+              </nav>
+            </div>
           </div>
-        </div>
 
-        {/* Tab Content */}
-        <div className="bg-white rounded-lg sm:rounded-2xl shadow-lg overflow-hidden">
-          {renderTabContent()}
+          {/* Tab Content */}
+          <div className="bg-white rounded-lg sm:rounded-2xl shadow-lg overflow-hidden">
+            {renderTabContent()}
+          </div>
         </div>
       </div>
-    </div>
+    </ProtectedRoute>
   )
 }

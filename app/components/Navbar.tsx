@@ -19,7 +19,7 @@ type NavLink = {
 }
 
 export default function Navbar() {
-  const { user, profileImage, signOut } = useAuth()
+  const { user, profileImage, fullName, signOut } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [scrollProgress, setScrollProgress] = useState(0)
@@ -158,7 +158,7 @@ export default function Navbar() {
                       </div>
                       <div className="hidden xl:block text-left">
                         <div className="text-sm font-semibold text-gray-900">
-                          {user.user_metadata?.first_name || 'User'}
+                          {fullName || user.email?.split('@')[0] || 'User'}
                         </div>
                         <div className="text-xs text-gray-500">View Profile</div>
                       </div>
@@ -177,12 +177,12 @@ export default function Navbar() {
                                 </div>
                               )}
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="font-semibold text-gray-900 truncate">
-                                {user.user_metadata?.first_name} {user.user_metadata?.last_name}
-                              </div>
-                              <div className="text-sm text-gray-600 truncate">{user.email}</div>
-                            </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-gray-900 truncate">
+                            {fullName || user.email?.split('@')[0] || 'User'}
+                          </div>
+                          <div className="text-sm text-gray-600 truncate">{user.email}</div>
+                        </div>
                           </div>
                         </div>
                         <div className="p-2">
@@ -306,7 +306,7 @@ export default function Navbar() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="font-semibold text-gray-900 truncate">
-                            {user.user_metadata?.first_name} {user.user_metadata?.last_name}
+                            {fullName || user.email?.split('@')[0] || 'User'}
                           </div>
                           <div className="text-sm text-gray-600 truncate">{user.email}</div>
                         </div>
