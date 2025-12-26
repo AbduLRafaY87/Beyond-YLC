@@ -184,7 +184,7 @@ export default function Home() {
         </div>
 
         {/* Hero Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 text-center">
+        <div className="mt-10 relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 text-center">
           <div className="mb-6 inline-block">
             <span className="px-3 sm:px-5 py-2 bg-white/10 backdrop-blur-xl rounded-full text-white text-xs sm:text-sm font-medium border border-white/20 shadow-xl shadow-black/30 ring-1 ring-white/10 whitespace-nowrap">
               🌟 Where 6 Days Become a Lifetime of Impact
