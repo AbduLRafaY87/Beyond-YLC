@@ -211,7 +211,7 @@ export default function PeoplePage() {
           </div> */}
 
           {/* Search and Controls */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 mb-8 border border-white/20">
+          <div className="rounded-2xl mb-8 border border-white/20">
             <div className="flex flex-col lg:flex-row gap-4 mb-4">
               <div className="flex-1 relative">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -220,7 +220,7 @@ export default function PeoplePage() {
                   placeholder="Search by name, bio, location, occupation..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  className="w-full pl-12 pr-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                 />
               </div>
 
@@ -245,7 +245,7 @@ export default function PeoplePage() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortBy)}
-                  className="px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent font-semibold text-gray-700"
+                  className="bg-white px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent font-semibold text-gray-700"
                 >
                   <option value="recent">Most Recent</option>
                   <option value="name">Name (A-Z)</option>

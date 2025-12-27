@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/AuthContext'
 import ProtectedRoute from '@/app/components/ProtectedRoute'
+import ChangePasswordModal from '@/app/components/ChangePasswordModal'
+
 import {
   User,
   Mail,
@@ -41,6 +43,13 @@ export default function Profile() {
   const [uploadingImage, setUploadingImage] = useState(false)
   const [interestsInput, setInterestsInput] = useState('')
   const [skillsInput, setSkillsInput] = useState('')
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false)
+  // const [changingPassword, setChangingPassword] = useState(false)
+  // const [passwordFormData, setPasswordFormData] = useState({
+  //   currentPassword: '',
+  //   newPassword: '',
+  //   confirmPassword: ''
+  // })
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -266,6 +275,25 @@ export default function Profile() {
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     router.push('/')
+  }
+
+  // Replace your existing handleChangePassword function with this:
+  const handleChangePassword = async (newPassword: string) => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      })
+
+      if (error) {
+        throw new Error(error.message || 'Failed to update password')
+      }
+
+      // Password changed successfully
+      // The modal will handle the UI feedback and closing
+    } catch (error: any) {
+      // Re-throw with a clean error message
+      throw new Error(error.message || 'Failed to update password. Please try again.')
+    }
   }
 
   const renderTabContent = () => {
@@ -794,7 +822,10 @@ export default function Profile() {
                   <LogOut className="w-4 h-4" />
                   Sign Out
                 </button>
-                <button className="w-full flex items-center justify-center gap-2 px-4 py-2 text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <button
+                  onClick={() => setShowChangePasswordModal(true)}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                >
                   <Lock className="w-4 h-4" />
                   Change Password
                 </button>
@@ -868,6 +899,61 @@ export default function Profile() {
           </div>
         </div>
       </div>
+
+      {/* Change Password Modal */}
+      {showChangePasswordModal && (
+        <ChangePasswordModal
+          isOpen={showChangePasswordModal}
+          onClose={() => setShowChangePasswordModal(false)}
+          onSubmit={handleChangePassword}
+        />
+      )}
+      {/* {showChangePasswordModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Change Password</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                <input
+                  type="password"
+                  value={passwordFormData.newPassword}
+                  onChange={(e) => setPasswordFormData(prev => ({ ...prev, newPassword: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="Enter new password"
+                  minLength={6}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+                <input
+                  type="password"
+                  value={passwordFormData.confirmPassword}
+                  onChange={(e) => setPasswordFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="Confirm new password"
+                  minLength={6}
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowChangePasswordModal(false)}
+                className="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleChangePassword}
+                disabled={changingPassword}
+                className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {changingPassword ? 'Changing...' : 'Change Password'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )} */}
     </ProtectedRoute>
   )
 }

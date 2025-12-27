@@ -323,11 +323,11 @@ export default function SignupPage() {
                 <div className="mt-8 pt-6 border-t border-gray-100">
                   <p className="text-xs text-gray-500 text-center leading-relaxed">
                     By creating an account, you agree to our{' '}
-                    <Link href="/terms" className="text-purple-600 hover:underline font-medium">
+                    <Link href="/terms-of-service" className="text-purple-600 hover:underline font-medium">
                       Terms
                     </Link>{' '}
                     and{' '}
-                    <Link href="/privacy" className="text-purple-600 hover:underline font-medium">
+                    <Link href="/privacy-policy" className="text-purple-600 hover:underline font-medium">
                       Privacy Policy
                     </Link>
                   </p>
