@@ -6,17 +6,17 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/AuthContext'
 import { supabase } from '@/lib/supabase'
-import { 
-  ArrowLeft, 
-  Target, 
-  MapPin, 
-  Users, 
-  Calendar, 
-  UserPlus, 
-  CheckCircle, 
-  AlertCircle, 
-  Edit, 
-  Share2, 
+import {
+  ArrowLeft,
+  Target,
+  MapPin,
+  Users,
+  Calendar,
+  UserPlus,
+  CheckCircle,
+  AlertCircle,
+  Edit,
+  Share2,
   Trash2,
   X,
   Loader2,
@@ -50,6 +50,7 @@ interface Member {
     avatar_url?: string
   } | null
 }
+
 
 type MessageType = 'success' | 'error' | 'info'
 
@@ -118,24 +119,28 @@ export default function SAPDetailPage() {
     const { data: membersData, error: membersError } = await supabase
       .from('project_members')
       .select(`
-        id,
-        user_id,
-        joined_at,
-        profiles (
-          full_name,
-          bio,
-          avatar_url
-        )
-      `)
+    id,
+    user_id,
+    joined_at,
+    profiles:profiles!project_members_user_id_fkey (
+      full_name,
+      bio,
+      avatar_url
+    )
+  `)
       .eq('project_id', sapId)
+
 
     if (membersError) throw membersError
 
     // Transform the data to match the Member interface
     const transformedMembers: Member[] = (membersData || []).map(member => ({
       ...member,
-      profiles: member.profiles && member.profiles.length > 0 ? member.profiles[0] : null
+      profiles: member.profiles || null
     }))
+
+    console.log('Raw members data:', membersData)
+    console.log('Transformed members:', transformedMembers)
 
     setMembers(transformedMembers)
   }
@@ -246,7 +251,7 @@ export default function SAPDetailPage() {
       if (error) throw error
 
       showMessage('success', 'Project deleted successfully')
-      
+
       // Redirect after a brief delay
       setTimeout(() => {
         router.push('/sap-hub')
@@ -260,7 +265,7 @@ export default function SAPDetailPage() {
 
   const handleShare = async () => {
     const url = window.location.href
-    
+
     if (navigator.share) {
       try {
         await navigator.share({
@@ -360,7 +365,7 @@ export default function SAPDetailPage() {
                 <Share2 className="w-4 h-4" />
                 <span className="hidden sm:inline">Share</span>
               </button>
-              
+
               {isCreator && (
                 <>
                   <Link
@@ -393,10 +398,10 @@ export default function SAPDetailPage() {
 
       {/* Message Banner */}
       {message && (
-        <MessageBanner 
-          type={message.type} 
-          message={message.message} 
-          onClose={() => setMessage(null)} 
+        <MessageBanner
+          type={message.type}
+          message={message.message}
+          onClose={() => setMessage(null)}
         />
       )}
 
@@ -416,7 +421,7 @@ export default function SAPDetailPage() {
                 <Target className="w-20 h-20 text-purple-400" />
               </div>
             )}
-            
+
             {/* Status Badge */}
             <div className="absolute top-4 left-4">
               <span className={`px-4 py-2 rounded-lg text-sm font-semibold border ${getStatusColor(sap.status)} backdrop-blur-sm`}>
@@ -432,7 +437,7 @@ export default function SAPDetailPage() {
               <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
                 {sap.title}
               </h1>
-              
+
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
                 <div className="flex items-center gap-1.5">
                   <Tag className="w-4 h-4" />
@@ -506,8 +511,8 @@ export default function SAPDetailPage() {
             )}
 
             {/* Members Section */}
-            <Section 
-              title="Team Members" 
+            <Section
+              title="Team Members"
               subtitle={`${members.length} member${members.length !== 1 ? 's' : ''}`}
             >
               {members.length === 0 ? (
@@ -595,24 +600,24 @@ interface JoinLeaveSectionProps {
   onLeave: () => void
 }
 
-function JoinLeaveSection({ 
-  isCompleted, 
-  isJoined, 
+function JoinLeaveSection({
+  isCompleted,
+  isJoined,
   isTargetReached,
   targetMembers,
   currentMembers,
-  isJoining, 
-  isLeaving, 
-  onJoin, 
-  onLeave 
+  isJoining,
+  isLeaving,
+  onJoin,
+  onLeave
 }: JoinLeaveSectionProps) {
   // Log for debugging
-  console.log('JoinLeaveSection:', { 
-    isCompleted, 
-    isJoined, 
-    isTargetReached, 
-    targetMembers, 
-    currentMembers 
+  console.log('JoinLeaveSection:', {
+    isCompleted,
+    isJoined,
+    isTargetReached,
+    targetMembers,
+    currentMembers
   })
 
   if (isCompleted) {
@@ -642,7 +647,7 @@ function JoinLeaveSection({
             </div>
           </div>
         </div>
-        
+
         <button
           onClick={onLeave}
           disabled={isLeaving}
@@ -719,14 +724,14 @@ function JoinLeaveSection({
 }
 
 // Section Component
-function Section({ 
-  title, 
-  subtitle, 
-  children 
-}: { 
+function Section({
+  title,
+  subtitle,
+  children
+}: {
   title: string
   subtitle?: string
-  children: React.ReactNode 
+  children: React.ReactNode
 }) {
   return (
     <div className="mb-8">
@@ -752,7 +757,8 @@ function EmptyMembers() {
 
 // Member Card Component
 function MemberCard({ member, isCreator }: { member: Member; isCreator: boolean }) {
-  const initials = (member.profiles?.full_name || 'Anonymous')
+  const profile = member.profiles
+  const initials = (profile?.full_name || 'Anonymous')
     .split(' ')
     .map(n => n[0])
     .join('')
@@ -763,10 +769,10 @@ function MemberCard({ member, isCreator }: { member: Member; isCreator: boolean 
     <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:border-purple-200 hover:bg-purple-50/50 transition-all">
       <div className="flex items-center gap-3">
         <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-blue-400 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
-          {member.profiles?.avatar_url ? (
+          {profile?.avatar_url ? (
             <img
-              src={member.profiles.avatar_url}
-              alt={member.profiles.full_name}
+              src={profile.avatar_url}
+              alt={profile.full_name}
               className="w-full h-full object-cover"
             />
           ) : (
@@ -776,7 +782,7 @@ function MemberCard({ member, isCreator }: { member: Member; isCreator: boolean 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <p className="font-semibold text-gray-900 truncate">
-              {member.profiles?.full_name || 'Anonymous'}
+              {profile?.full_name || 'Anonymous'}
             </p>
             {isCreator && (
               <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-xs font-medium">
@@ -785,10 +791,10 @@ function MemberCard({ member, isCreator }: { member: Member; isCreator: boolean 
             )}
           </div>
           <p className="text-sm text-gray-600">
-            Joined {new Date(member.joined_at).toLocaleDateString('en-US', { 
-              month: 'short', 
-              day: 'numeric', 
-              year: 'numeric' 
+            Joined {new Date(member.joined_at).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric'
             })}
           </p>
         </div>
@@ -798,14 +804,14 @@ function MemberCard({ member, isCreator }: { member: Member; isCreator: boolean 
 }
 
 // Stat Card Component
-function StatCard({ 
-  value, 
-  label, 
-  icon 
-}: { 
+function StatCard({
+  value,
+  label,
+  icon
+}: {
   value: string
   label: string
-  icon: React.ReactNode 
+  icon: React.ReactNode
 }) {
   return (
     <div className="text-center">
