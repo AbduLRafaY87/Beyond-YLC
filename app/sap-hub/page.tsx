@@ -349,12 +349,12 @@ export default function SAPHubPage() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8">
+          {/* <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8">
             <StatCard icon={<Target />} value={stats.total} label="Total Projects" color="purple" />
             <StatCard icon={<UserPlus />} value={stats.joined} label="Joined" color="blue" />
             <StatCard icon={<TrendingUp />} value={stats.active} label="Active" color="green" />
             <StatCard icon={<CheckCircle />} value={stats.completed} label="Completed" color="gray" />
-          </div>
+          </div> */}
         </div>
       </header>
 
