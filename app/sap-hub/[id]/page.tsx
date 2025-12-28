@@ -131,7 +131,13 @@ export default function SAPDetailPage() {
 
     if (membersError) throw membersError
 
-    setMembers((membersData || []) as Member[])
+    // Transform the data to match the Member interface
+    const transformedMembers: Member[] = (membersData || []).map(member => ({
+      ...member,
+      profiles: member.profiles && member.profiles.length > 0 ? member.profiles[0] : null
+    }))
+
+    setMembers(transformedMembers)
   }
 
   const checkIfJoined = async () => {

@@ -87,6 +87,93 @@ const statuses = [
   'completed'
 ]
 
+/* -------------------- SMALL UI HELPERS -------------------- */
+
+interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+  label: string
+  icon?: React.ReactNode
+  error?: string
+  onChange: (value: string) => void
+}
+
+function Input({ label, icon, error, onChange, ...props }: InputProps) {
+  return (
+    <div>
+      <label className="block text-sm font-medium mb-2">{label} *</label>
+      <div className="relative">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          {icon}
+        </span>
+        <input
+          {...props}
+          onChange={(e) => onChange(e.target.value)}
+          className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 ${
+            error ? 'border-red-300' : 'border-gray-300'
+          }`}
+        />
+      </div>
+      {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
+    </div>
+  )
+}
+
+interface TextareaProps extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'onChange'> {
+  label: string
+  icon?: React.ReactNode
+  error?: string
+  onChange: (value: string) => void
+}
+
+function Textarea({ label, icon, error, onChange, ...props }: TextareaProps) {
+  return (
+    <div>
+      <label className="block text-sm font-medium mb-2">{label} *</label>
+      <div className="relative">
+        <span className="absolute left-3 top-3 text-gray-400">{icon}</span>
+        <textarea
+          {...props}
+          onChange={(e) => onChange(e.target.value)}
+          rows={4}
+          className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 ${
+            error ? 'border-red-300' : 'border-gray-300'
+          }`}
+        />
+      </div>
+      {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
+    </div>
+  )
+}
+
+interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'onChange'> {
+  label: string
+  options: string[]
+  error?: string
+  onChange: (value: string) => void
+}
+
+function Select({ label, options, error, onChange, ...props }: SelectProps) {
+  return (
+    <div>
+      <label className="block text-sm font-medium mb-2">{label} *</label>
+      <select
+        {...props}
+        onChange={(e) => onChange(e.target.value)}
+        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 ${
+          error ? 'border-red-300' : 'border-gray-300'
+        }`}
+      >
+        <option value="">Select</option>
+        {options.map((o: string) => (
+          <option key={o} value={o}>
+            {o}
+          </option>
+        ))}
+      </select>
+      {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
+    </div>
+  )
+}
+
 export default function EditSAPPage() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
@@ -356,72 +443,6 @@ export default function EditSAPPage() {
           </div>
         </form>
       </div>
-    </div>
-  )
-}
-
-/* -------------------- SMALL UI HELPERS -------------------- */
-
-function Input({ label, icon, error, ...props }: any) {
-  return (
-    <div>
-      <label className="block text-sm font-medium mb-2">{label} *</label>
-      <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-          {icon}
-        </span>
-        <input
-          {...props}
-          onChange={(e) => props.onChange(e.target.value)}
-          className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 ${
-            error ? 'border-red-300' : 'border-gray-300'
-          }`}
-        />
-      </div>
-      {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
-    </div>
-  )
-}
-
-function Textarea({ label, icon, error, ...props }: any) {
-  return (
-    <div>
-      <label className="block text-sm font-medium mb-2">{label} *</label>
-      <div className="relative">
-        <span className="absolute left-3 top-3 text-gray-400">{icon}</span>
-        <textarea
-          {...props}
-          onChange={(e) => props.onChange(e.target.value)}
-          rows={4}
-          className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 ${
-            error ? 'border-red-300' : 'border-gray-300'
-          }`}
-        />
-      </div>
-      {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
-    </div>
-  )
-}
-
-function Select({ label, options, error, ...props }: any) {
-  return (
-    <div>
-      <label className="block text-sm font-medium mb-2">{label} *</label>
-      <select
-        {...props}
-        onChange={(e) => props.onChange(e.target.value)}
-        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 ${
-          error ? 'border-red-300' : 'border-gray-300'
-        }`}
-      >
-        <option value="">Select</option>
-        {options.map((o: string) => (
-          <option key={o} value={o}>
-            {o}
-          </option>
-        ))}
-      </select>
-      {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
     </div>
   )
 }
