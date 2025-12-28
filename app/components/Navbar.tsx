@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
-import { Menu, X, Bell, User, LogOut, Settings, Sparkles } from 'lucide-react'
+import { Menu, X, Bell, User, LogOut, Settings, Sparkles, FilesIcon, File, SettingsIcon, BubblesIcon } from 'lucide-react'
 import { useAuth } from '@/lib/AuthContext'
 
 // Mock supabase for demo - replace with actual import
@@ -215,6 +215,16 @@ export default function Navbar() {
                               <Settings className="w-4 h-4 text-blue-600" />
                             </div>
                             <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600">Settings</span>
+                          </Link>
+                          <Link
+                            href="/my-saps"
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-purple-50 transition-colors group"
+                            onClick={() => setProfileOpen(false)}
+                          >
+                            <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+                              <BubblesIcon className="w-4 h-4 text-purple-600" />
+                            </div>
+                            <span className="text-sm font-medium text-gray-700 group-hover:text-purple-600">My SAPs</span>
                           </Link>
                         </div>
                         <div className="p-2 border-t border-gray-100">

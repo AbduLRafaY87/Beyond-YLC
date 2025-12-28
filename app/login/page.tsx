@@ -245,7 +245,7 @@ export default function LoginPage() {
                 <div className="mt-8 pt-6 border-t border-gray-100">
                   <p className="text-xs text-gray-500 text-center leading-relaxed">
                     By signing in, you agree to our{' '}
-                    <Link href="/terms-of-services" className="text-purple-600 hover:underline font-medium">
+                    <Link href="/terms-of-service" className="text-purple-600 hover:underline font-medium">
                       Terms
                     </Link>{' '}
                     and{' '}

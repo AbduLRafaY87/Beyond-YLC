@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/AuthContext'
 import { supabase } from '@/lib/supabase'
@@ -11,10 +11,11 @@ import {
   FileText,
   MapPin,
   Users,
-  Calendar,
   Save,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  Loader,
+  TrendingUp
 } from 'lucide-react'
 
 type FormData = {
@@ -23,7 +24,7 @@ type FormData = {
   category: string
   location: string
   targetMembers: string
-  startDate: string
+  status: string
 }
 
 const initialFormData: FormData = {
@@ -32,7 +33,7 @@ const initialFormData: FormData = {
   category: '',
   location: '',
   targetMembers: '',
-  startDate: ''
+  status: 'idea'
 }
 
 const categories = [
@@ -80,24 +81,89 @@ const locations = [
   'Other'
 ]
 
-export default function CreateSAPPage() {
-  const { user, loading } = useAuth()
+const statuses = [
+  'idea',
+  'active',
+  'completed'
+]
+
+export default function EditSAPPage() {
+  const { user, loading: authLoading } = useAuth()
   const router = useRouter()
+  const params = useParams()
+  const projectId = params.id as string
 
   const [formData, setFormData] = useState<FormData>(initialFormData)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [submitMessage, setSubmitMessage] = useState<{
     type: 'success' | 'error'
     message: string
   } | null>(null)
+  const [project, setProject] = useState<any>(null)
 
   /* -------------------- AUTH GUARD -------------------- */
   useEffect(() => {
-    if (!loading && !user) {
+    if (!authLoading && !user) {
       router.push('/login')
+      return
     }
-  }, [user, loading, router])
+
+    if (!projectId) {
+      router.push('/sap-hub')
+      return
+    }
+
+    fetchProject()
+  }, [user, authLoading, router, projectId])
+
+  /* -------------------- FETCH PROJECT -------------------- */
+  const fetchProject = async () => {
+    if (!user || !projectId) return
+
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('id', projectId)
+
+      if (error) {
+        console.error('Error fetching project:', error)
+        router.push('/sap-hub')
+        return
+      }
+
+      // Check if project exists
+      if (!data || data.length === 0) {
+        router.push('/sap-hub')
+        return
+      }
+
+      const projectData = data[0]
+
+      // Check if user is the creator
+      if (projectData.creator_id !== user.id) {
+        router.push(`/sap-hub/${projectId}`)
+        return
+      }
+
+      setProject(projectData)
+      setFormData({
+        title: projectData.title || '',
+        description: projectData.description || '',
+        category: projectData.category || '',
+        location: projectData.location || '',
+        targetMembers: projectData.members?.toString() || '',
+        status: projectData.status || 'idea'
+      })
+    } catch (error) {
+      console.error('Error fetching project:', error)
+      router.push('/sap-hub')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   /* -------------------- VALIDATION -------------------- */
   const validateForm = () => {
@@ -114,16 +180,6 @@ export default function CreateSAPPage() {
     if (!formData.targetMembers || Number(formData.targetMembers) < 1) {
       newErrors.targetMembers = 'Must be at least 1 member'
     }
-    if (!formData.startDate) {
-      newErrors.startDate = 'Start date is required'
-    } else {
-      const selected = new Date(formData.startDate)
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      if (selected < today) {
-        newErrors.startDate = 'Start date cannot be in the past'
-      }
-    }
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -132,47 +188,33 @@ export default function CreateSAPPage() {
   /* -------------------- SUBMIT -------------------- */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!validateForm() || !user) return
+    if (!validateForm() || !user || !project) return
 
     setIsSubmitting(true)
     setSubmitMessage(null)
 
     try {
-      // First create the project
-      const { data: projectData, error: projectError } =
-        await supabase
-          .from('projects')
-          .insert({
-            title: formData.title.trim(),
-            description: formData.description.trim(),
-            category: formData.category,
-            location: formData.location.trim(),
-            members: Number(formData.targetMembers), // ✅ FIXED
-            start_date: formData.startDate,
-            status: 'idea',
-            creator_id: user.id
-          })
-          .select()
-          .single()
+      const { error } = await supabase
+        .from('projects')
+        .update({
+          title: formData.title.trim(),
+          description: formData.description.trim(),
+          category: formData.category,
+          location: formData.location.trim(),
+          members: Number(formData.targetMembers),
+          status: formData.status,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', projectId)
 
-
-      if (projectError) throw projectError
-
-      // Then add the creator as the first member
-      const { error: memberError } = await supabase.from('project_members').insert({
-        project_id: projectData.id,
-        user_id: user.id,
-        joined_at: new Date().toISOString()
-      })
-
-      if (memberError) throw memberError
+      if (error) throw error
 
       setSubmitMessage({
         type: 'success',
-        message: 'SAP created successfully! Redirecting...'
+        message: 'SAP updated successfully! Redirecting...'
       })
 
-      setTimeout(() => router.push('/sap-hub'), 1800)
+      setTimeout(() => router.push(`/sap-hub/${projectId}`), 1800)
     } catch (err) {
       console.error(err)
       setSubmitMessage({
@@ -192,30 +234,33 @@ export default function CreateSAPPage() {
     }
   }
 
-  if (loading) {
+  if (authLoading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-purple-600" />
+        <div className="flex items-center gap-3">
+          <Loader className="w-6 h-6 animate-spin" />
+          <span>Loading project...</span>
+        </div>
       </div>
     )
   }
 
-  if (!user) return null
+  if (!user || !project) return null
 
   /* -------------------- UI -------------------- */
   return (
-    <div className="mt-16 min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b">
         <div className="max-w-4xl mx-auto px-4 py-6">
-          <Link href="/sap-hub" className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
+          <Link href={`/sap-hub/${projectId}`} className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
             <ArrowLeft className="w-5 h-5" />
-            Back to SAP Hub
+            Back to Project
           </Link>
 
-          <h1 className="mt-4 text-3xl font-bold">Create New SAP</h1>
+          <h1 className="mt-4 text-3xl font-bold">Edit SAP</h1>
           <p className="text-gray-600 mt-1">
-            Turn your idea into a real-world social action project
+            Update your social action project details
           </p>
         </div>
       </div>
@@ -263,7 +308,7 @@ export default function CreateSAPPage() {
             />
           </div>
 
-          {/* Members & Date */}
+          {/* Target Members & Status */}
           <div className="grid md:grid-cols-2 gap-6">
             <Input
               label="Target Members"
@@ -273,23 +318,23 @@ export default function CreateSAPPage() {
               value={formData.targetMembers}
               onChange={v => handleChange('targetMembers', v)}
             />
-            <Input
-              label="Start Date"
-              type="date"
-              icon={<Calendar />}
-              error={errors.startDate}
-              value={formData.startDate}
-              onChange={v => handleChange('startDate', v)}
+            <Select
+              label="Status"
+              error={errors.status}
+              value={formData.status}
+              onChange={v => handleChange('status', v)}
+              options={statuses}
             />
           </div>
 
           {/* Message */}
           {submitMessage && (
             <div
-              className={`p-4 rounded-lg flex gap-2 items-center ${submitMessage.type === 'success'
+              className={`p-4 rounded-lg flex gap-2 items-center ${
+                submitMessage.type === 'success'
                   ? 'bg-green-50 text-green-800'
                   : 'bg-red-50 text-red-800'
-                }`}
+              }`}
             >
               {submitMessage.type === 'success' ? (
                 <CheckCircle className="w-5 h-5" />
@@ -306,7 +351,7 @@ export default function CreateSAPPage() {
               disabled={isSubmitting}
               className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg flex items-center gap-2 disabled:opacity-50"
             >
-              {isSubmitting ? 'Creating...' : <><Save className="w-5 h-5" /> Create SAP</>}
+              {isSubmitting ? 'Updating...' : <><Save className="w-5 h-5" /> Update SAP</>}
             </button>
           </div>
         </form>
@@ -328,8 +373,9 @@ function Input({ label, icon, error, ...props }: any) {
         <input
           {...props}
           onChange={(e) => props.onChange(e.target.value)}
-          className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 ${error ? 'border-red-300' : 'border-gray-300'
-            }`}
+          className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 ${
+            error ? 'border-red-300' : 'border-gray-300'
+          }`}
         />
       </div>
       {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
@@ -347,8 +393,9 @@ function Textarea({ label, icon, error, ...props }: any) {
           {...props}
           onChange={(e) => props.onChange(e.target.value)}
           rows={4}
-          className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 ${error ? 'border-red-300' : 'border-gray-300'
-            }`}
+          className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 ${
+            error ? 'border-red-300' : 'border-gray-300'
+          }`}
         />
       </div>
       {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
@@ -363,8 +410,9 @@ function Select({ label, options, error, ...props }: any) {
       <select
         {...props}
         onChange={(e) => props.onChange(e.target.value)}
-        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 ${error ? 'border-red-300' : 'border-gray-300'
-          }`}
+        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 ${
+          error ? 'border-red-300' : 'border-gray-300'
+        }`}
       >
         <option value="">Select</option>
         {options.map((o: string) => (

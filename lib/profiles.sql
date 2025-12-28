@@ -26,9 +26,9 @@ create table profiles (
 alter table profiles enable row level security;
 
 -- Create policies
-create policy "Users can view own profile"
+create policy "Users can view all profiles"
   on profiles for select
-  using (auth.uid() = id);
+  using (true);
 
 create policy "Users can insert own profile"
   on profiles for insert
