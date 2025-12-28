@@ -20,7 +20,11 @@ import {
   Trash2,
   X,
   Loader2,
-  Tag
+  Tag,
+  Clock,
+  Star,
+  TrendingUp,
+  Award
 } from 'lucide-react'
 
 interface SAP {
@@ -40,17 +44,18 @@ interface SAP {
   banner_image?: string
 }
 
+interface Profile {
+  full_name: string | null
+  bio: string | null
+  avatar_url?: string | null
+}
+
 interface Member {
   id: string
   user_id: string
   joined_at: string
-  profiles: {
-    full_name: string
-    bio: string | null
-    avatar_url?: string
-  } | null
+  profiles: Profile | null
 }
-
 
 type MessageType = 'success' | 'error' | 'info'
 
@@ -109,9 +114,9 @@ export default function SAPDetailPage() {
     if (sapError) throw sapError
 
     // Map the database field 'members' to 'target_members' for consistency
-    const transformedSap = {
+    const transformedSap: SAP = {
       ...sapData,
-      target_members: sapData.members // Database field is 'members', we use 'target_members' in the app
+      target_members: sapData.members
     }
 
     setSap(transformedSap)
@@ -119,28 +124,37 @@ export default function SAPDetailPage() {
     const { data: membersData, error: membersError } = await supabase
       .from('project_members')
       .select(`
-    id,
-    user_id,
-    joined_at,
-    profiles:profiles!project_members_user_id_fkey (
-      full_name,
-      bio,
-      avatar_url
-    )
-  `)
+        id,
+        user_id,
+        joined_at,
+        profiles (
+          full_name,
+          bio,
+          avatar_url
+        )
+      `)
       .eq('project_id', sapId)
-
 
     if (membersError) throw membersError
 
-    // Transform the data to match the Member interface
-    const transformedMembers: Member[] = (membersData || []).map(member => ({
-      ...member,
-      profiles: member.profiles || null
-    }))
+    // Fix: Properly type the members data
+    const transformedMembers: Member[] = (membersData || []).map(member => {
+      // Handle the case where profiles might be an array or a single object
+      const profileData = Array.isArray(member.profiles) 
+        ? member.profiles[0] 
+        : member.profiles
 
-    console.log('Raw members data:', membersData)
-    console.log('Transformed members:', transformedMembers)
+      return {
+        id: member.id,
+        user_id: member.user_id,
+        joined_at: member.joined_at,
+        profiles: profileData ? {
+          full_name: profileData.full_name,
+          bio: profileData.bio,
+          avatar_url: profileData.avatar_url
+        } : null
+      }
+    })
 
     setMembers(transformedMembers)
   }
@@ -166,7 +180,6 @@ export default function SAPDetailPage() {
   const handleJoinSAP = async () => {
     if (!user || isJoined || isJoining) return
 
-    // Check if target is reached
     if (sap?.target_members && members.length >= sap.target_members) {
       showMessage('error', 'This project has reached its member limit')
       return
@@ -236,13 +249,11 @@ export default function SAPDetailPage() {
     setIsDeleting(true)
 
     try {
-      // Delete project members first (cascade should handle this, but being explicit)
       await supabase
         .from('project_members')
         .delete()
         .eq('project_id', sapId)
 
-      // Delete the project
       const { error } = await supabase
         .from('projects')
         .delete()
@@ -252,7 +263,6 @@ export default function SAPDetailPage() {
 
       showMessage('success', 'Project deleted successfully')
 
-      // Redirect after a brief delay
       setTimeout(() => {
         router.push('/sap-hub')
       }, 1000)
@@ -270,15 +280,13 @@ export default function SAPDetailPage() {
       try {
         await navigator.share({
           title: sap?.title,
-          text: sap?.description,
+          text: sap?.description || '',
           url: url
         })
       } catch (error) {
-        // User cancelled or share failed
         console.log('Share cancelled')
       }
     } else {
-      // Fallback: copy to clipboard
       try {
         await navigator.clipboard.writeText(url)
         showMessage('success', 'Link copied to clipboard!')
@@ -288,49 +296,65 @@ export default function SAPDetailPage() {
     }
   }
 
-  const getStatusColor = (status: string) => {
-    const colors = {
-      idea: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      active: 'bg-green-100 text-green-800 border-green-200',
-      completed: 'bg-blue-100 text-blue-800 border-blue-200',
-      complete: 'bg-blue-100 text-blue-800 border-blue-200'
+  const getStatusConfig = (status: string) => {
+    const configs = {
+      idea: {
+        color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+        icon: <Target className="w-4 h-4" />,
+        label: 'Idea',
+        gradient: 'from-yellow-500 to-orange-500'
+      },
+      active: {
+        color: 'bg-green-100 text-green-800 border-green-200',
+        icon: <TrendingUp className="w-4 h-4" />,
+        label: 'Active',
+        gradient: 'from-green-500 to-emerald-500'
+      },
+      completed: {
+        color: 'bg-blue-100 text-blue-800 border-blue-200',
+        icon: <CheckCircle className="w-4 h-4" />,
+        label: 'Completed',
+        gradient: 'from-blue-500 to-indigo-500'
+      },
+      complete: {
+        color: 'bg-blue-100 text-blue-800 border-blue-200',
+        icon: <CheckCircle className="w-4 h-4" />,
+        label: 'Completed',
+        gradient: 'from-blue-500 to-indigo-500'
+      }
     }
-    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800 border-gray-200'
-  }
-
-  const getStatusLabel = (status: string) => {
-    return status.charAt(0).toUpperCase() + status.slice(1)
+    return configs[status as keyof typeof configs] || configs.idea
   }
 
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50/30 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-12 h-12 text-purple-600 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading project details...</p>
+          <p className="text-gray-600 font-medium">Loading project details...</p>
         </div>
       </div>
     )
   }
 
-  if (!user) {
-    return null
-  }
+  if (!user) return null
 
   if (!sap) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center max-w-md">
-          <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-2xl font-bold text-gray-900 mb-2">Project Not Found</h3>
-          <p className="text-gray-600 mb-8">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50/30 flex items-center justify-center">
+        <div className="text-center max-w-md px-4">
+          <div className="w-20 h-20 bg-gradient-to-br from-red-100 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <AlertCircle className="w-10 h-10 text-red-600" />
+          </div>
+          <h3 className="text-3xl font-bold text-gray-900 mb-3">Project Not Found</h3>
+          <p className="text-gray-600 mb-8 text-lg">
             The project you're looking for doesn't exist or has been removed.
           </p>
           <Link
             href="/sap-hub"
-            className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 inline-flex items-center gap-2 transition-colors"
+            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-3 rounded-xl hover:shadow-lg inline-flex items-center gap-2 transition-all font-medium"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-5 h-5" />
             Back to SAP Hub
           </Link>
         </div>
@@ -341,26 +365,27 @@ export default function SAPDetailPage() {
   const isCreator = user.id === sap.creator_id
   const isCompleted = sap.status === 'completed' || sap.status === 'complete'
   const isTargetReached = Boolean(sap.target_members && sap.target_members > 0 && members.length >= sap.target_members)
+  const statusConfig = getStatusConfig(sap.status)
+  const progress = sap.target_members ? (members.length / sap.target_members) * 100 : 0
 
   return (
-    <div className="mt-30 min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className=" w-5xl m-auto z-10">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50/30">
+      {/* Sticky Header */}
+      <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <Link
               href="/sap-hub"
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+              className="flex items-center gap-2 text-gray-600 hover:text-purple-600 transition-colors group"
             >
-              <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">Back to SAP Hub</span>
+              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+              <span className="font-semibold">Back to Hub</span>
             </Link>
 
-            {/* Action Buttons */}
             <div className="flex gap-2">
               <button
                 onClick={handleShare}
-                className="bg-white text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-50 border border-gray-300 flex items-center gap-2 text-sm transition-colors"
+                className="bg-white text-gray-700 px-4 py-2 rounded-xl hover:bg-gray-50 border border-gray-300 flex items-center gap-2 text-sm transition-all shadow-sm hover:shadow font-medium"
               >
                 <Share2 className="w-4 h-4" />
                 <span className="hidden sm:inline">Share</span>
@@ -370,7 +395,7 @@ export default function SAPDetailPage() {
                 <>
                   <Link
                     href={`/sap-hub/${sapId}/edit`}
-                    className="bg-white text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-50 border border-gray-300 flex items-center gap-2 text-sm transition-colors"
+                    className="bg-white text-gray-700 px-4 py-2 rounded-xl hover:bg-gray-50 border border-gray-300 flex items-center gap-2 text-sm transition-all shadow-sm hover:shadow font-medium"
                   >
                     <Edit className="w-4 h-4" />
                     <span className="hidden sm:inline">Edit</span>
@@ -378,7 +403,7 @@ export default function SAPDetailPage() {
                   <button
                     onClick={handleDeleteSAP}
                     disabled={isDeleting}
-                    className="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center gap-2 text-sm transition-colors"
+                    className="bg-red-600 text-white px-4 py-2 rounded-xl hover:bg-red-700 disabled:opacity-50 flex items-center gap-2 text-sm transition-all shadow-sm hover:shadow font-medium"
                   >
                     {isDeleting ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -406,60 +431,100 @@ export default function SAPDetailPage() {
       )}
 
       {/* Main Content */}
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          {/* Hero Image */}
-          <div className="relative h-64 sm:h-80 bg-gradient-to-br from-purple-100 via-purple-200 to-blue-100">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+          {/* Hero Section */}
+          <div className="relative h-72 sm:h-96 bg-gradient-to-br from-purple-100 via-blue-100 to-purple-100 overflow-hidden">
             {sap.image || sap.banner_image ? (
-              <img
-                src={sap.image || sap.banner_image}
-                alt={sap.title}
-                className="w-full h-full object-cover"
-              />
+              <>
+                <img
+                  src={sap.image || sap.banner_image}
+                  alt={sap.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+              </>
             ) : (
               <div className="w-full h-full flex items-center justify-center">
-                <Target className="w-20 h-20 text-purple-400" />
+                <Target className="w-24 h-24 text-purple-300" />
               </div>
             )}
 
-            {/* Status Badge */}
-            <div className="absolute top-4 left-4">
-              <span className={`px-4 py-2 rounded-lg text-sm font-semibold border ${getStatusColor(sap.status)} backdrop-blur-sm`}>
-                {getStatusLabel(sap.status)}
+            {/* Floating Status Badge */}
+            <div className="absolute top-6 left-6">
+              <span className={`px-5 py-2.5 rounded-xl text-sm font-bold border-2 ${statusConfig.color} backdrop-blur-md flex items-center gap-2 shadow-lg`}>
+                {statusConfig.icon}
+                {statusConfig.label}
               </span>
             </div>
+
+            {/* Joined/Creator Badge */}
+            {(isJoined || isCreator) && (
+              <div className="absolute top-6 right-6">
+                {isCreator ? (
+                  <span className="px-5 py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-purple-600 to-blue-600 text-white backdrop-blur-md flex items-center gap-2 shadow-lg">
+                    <Star className="w-4 h-4" />
+                    Your Project
+                  </span>
+                ) : (
+                  <span className="px-5 py-2.5 rounded-xl text-sm font-bold bg-green-600 text-white backdrop-blur-md flex items-center gap-2 shadow-lg">
+                    <CheckCircle className="w-4 h-4" />
+                    Joined
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Content */}
-          <div className="p-6 sm:p-8">
-            {/* Title & Meta */}
+          <div className="p-6 sm:p-10">
+            {/* Title & Quick Info */}
             <div className="mb-8">
-              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6 leading-tight">
                 {sap.title}
               </h1>
 
-              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                <div className="flex items-center gap-1.5">
+              <div className="flex flex-wrap items-center gap-4 text-sm">
+                <div className="flex items-center gap-2 bg-purple-50 text-purple-700 px-4 py-2 rounded-lg border border-purple-200">
                   <Tag className="w-4 h-4" />
-                  <span className="font-medium">{sap.category}</span>
+                  <span className="font-semibold">{sap.category}</span>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-2 text-gray-600">
                   <MapPin className="w-4 h-4" />
-                  <span>{sap.location}</span>
+                  <span className="font-medium">{sap.location}</span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <Users className="w-4 h-4" />
-                  <span>
-                    {members.length}
-                    {sap.target_members && ` / ${sap.target_members}`} members
-                  </span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4" />
-                  <span>Started {new Date(sap.created_at).toLocaleDateString()}</span>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Clock className="w-4 h-4" />
+                  <span className="font-medium">{new Date(sap.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                 </div>
               </div>
             </div>
+
+            {/* Progress Section */}
+            {sap.target_members && (
+              <div className="mb-8 bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-6 border border-purple-100">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-purple-600" />
+                    <span className="font-bold text-gray-900">Team Progress</span>
+                  </div>
+                  <span className="text-2xl font-bold text-gray-900">
+                    {members.length}<span className="text-gray-500">/{sap.target_members}</span>
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 bg-gradient-to-r ${
+                      progress >= 100 ? 'from-green-500 to-emerald-500' : statusConfig.gradient
+                    }`}
+                    style={{ width: `${Math.min(progress, 100)}%` }}
+                  />
+                </div>
+                <p className="text-sm text-gray-600 mt-2">
+                  {progress >= 100 ? 'Team is complete!' : `${Math.round(100 - progress)}% more to reach goal`}
+                </p>
+              </div>
+            )}
 
             {/* Join/Leave Actions */}
             {!isCreator && (
@@ -477,17 +542,17 @@ export default function SAPDetailPage() {
             )}
 
             {/* Description */}
-            <Section title="About This Project">
-              <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+            <Section title="About This Project" icon={<Target className="w-5 h-5" />}>
+              <p className="text-gray-700 text-lg leading-relaxed whitespace-pre-wrap">
                 {sap.description}
               </p>
             </Section>
 
             {/* Problem Statement */}
             {sap.problem && (
-              <Section title="Problem Statement">
-                <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl p-6 border border-purple-100">
-                  <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">
+              <Section title="Problem Statement" icon={<AlertCircle className="w-5 h-5" />}>
+                <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl p-6 border-2 border-orange-200">
+                  <p className="text-gray-800 text-lg leading-relaxed whitespace-pre-wrap">
                     {sap.problem}
                   </p>
                 </div>
@@ -496,12 +561,12 @@ export default function SAPDetailPage() {
 
             {/* Required Skills */}
             {sap.required_skills && sap.required_skills.length > 0 && (
-              <Section title="Required Skills">
-                <div className="flex flex-wrap gap-2">
+              <Section title="Required Skills" icon={<Award className="w-5 h-5" />}>
+                <div className="flex flex-wrap gap-3">
                   {sap.required_skills.map((skill, index) => (
                     <span
                       key={index}
-                      className="bg-purple-100 text-purple-800 px-4 py-2 rounded-lg text-sm font-medium border border-purple-200"
+                      className="bg-gradient-to-r from-purple-100 to-blue-100 text-purple-800 px-5 py-2.5 rounded-xl text-sm font-bold border-2 border-purple-200 shadow-sm"
                     >
                       {skill}
                     </span>
@@ -510,44 +575,54 @@ export default function SAPDetailPage() {
               </Section>
             )}
 
-            {/* Members Section */}
+            {/* Team Members */}
             <Section
               title="Team Members"
-              subtitle={`${members.length} member${members.length !== 1 ? 's' : ''}`}
+              subtitle={`${members.length} ${members.length === 1 ? 'member' : 'members'}`}
+              icon={<Users className="w-5 h-5" />}
             >
               {members.length === 0 ? (
                 <EmptyMembers />
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {members.map((member) => (
-                    <MemberCard key={member.id} member={member} isCreator={member.user_id === sap.creator_id} />
+                    <MemberCard
+                      key={member.id}
+                      member={member}
+                      isCreator={member.user_id === sap.creator_id}
+                    />
                   ))}
                 </div>
               )}
             </Section>
 
             {/* Project Stats */}
-            <div className="border-t pt-8 mt-8">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+            <div className="border-t-2 border-gray-100 pt-10 mt-10">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">Project Overview</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <StatCard
                   value={members.length.toString()}
-                  label="Members"
-                  icon={<Users className="w-5 h-5 text-purple-600" />}
+                  label="Team Members"
+                  icon={<Users />}
+                  color="purple"
                 />
                 <StatCard
                   value={sap.category}
                   label="Category"
-                  icon={<Tag className="w-5 h-5 text-purple-600" />}
+                  icon={<Tag />}
+                  color="blue"
                 />
                 <StatCard
-                  value={getStatusLabel(sap.status)}
+                  value={statusConfig.label}
                   label="Status"
-                  icon={<CheckCircle className="w-5 h-5 text-purple-600" />}
+                  icon={statusConfig.icon}
+                  color="green"
                 />
                 <StatCard
                   value={new Date(sap.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  label="Created"
-                  icon={<Calendar className="w-5 h-5 text-purple-600" />}
+                  label="Started"
+                  icon={<Calendar />}
+                  color="orange"
                 />
               </div>
             </div>
@@ -573,11 +648,11 @@ function MessageBanner({ type, message, onClose }: { type: MessageType; message:
   }
 
   return (
-    <div className={`${styles[type]} border-b px-4 py-3`}>
-      <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
+    <div className={`${styles[type]} border-b-2 px-4 py-4 animate-in slide-in-from-top duration-300`}>
+      <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           {icons[type]}
-          <span className="font-medium">{message}</span>
+          <span className="font-semibold">{message}</span>
         </div>
         <button onClick={onClose} className="hover:opacity-70 transition-opacity">
           <X className="w-5 h-5" />
@@ -611,39 +686,33 @@ function JoinLeaveSection({
   onJoin,
   onLeave
 }: JoinLeaveSectionProps) {
-  // Log for debugging
-  console.log('JoinLeaveSection:', {
-    isCompleted,
-    isJoined,
-    isTargetReached,
-    targetMembers,
-    currentMembers
-  })
-
   if (isCompleted) {
     return (
-      <div className="mb-8 bg-blue-50 border border-blue-200 rounded-xl p-6">
-        <div className="flex items-center gap-3">
-          <CheckCircle className="w-6 h-6 text-blue-600 flex-shrink-0" />
+      <div className="mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-6">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+            <CheckCircle className="w-6 h-6 text-white" />
+          </div>
           <div>
-            <p className="text-blue-900 font-semibold">This project has been completed</p>
-            <p className="text-blue-700 text-sm mt-1">Thank you to all contributors!</p>
+            <p className="text-blue-900 font-bold text-lg">Project Completed!</p>
+            <p className="text-blue-700 text-sm mt-1">Thank you to all amazing contributors!</p>
           </div>
         </div>
       </div>
     )
   }
 
-  // ✅ CRITICAL: Check if user is joined FIRST
   if (isJoined) {
     return (
       <div className="mb-8">
-        <div className="bg-green-50 border border-green-200 rounded-xl p-6 mb-4">
-          <div className="flex items-center gap-3">
-            <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0" />
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-6 mb-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
+              <CheckCircle className="w-6 h-6 text-white" />
+            </div>
             <div>
-              <p className="text-green-900 font-semibold">You're a member of this project</p>
-              <p className="text-green-700 text-sm mt-1">Great! Keep up the amazing work.</p>
+              <p className="text-green-900 font-bold text-lg">You're part of this team!</p>
+              <p className="text-green-700 text-sm mt-1">Keep up the amazing work together.</p>
             </div>
           </div>
         </div>
@@ -651,7 +720,7 @@ function JoinLeaveSection({
         <button
           onClick={onLeave}
           disabled={isLeaving}
-          className="w-full sm:w-auto bg-red-600 text-white px-8 py-3 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium transition-colors"
+          className="w-full sm:w-auto bg-red-600 text-white px-8 py-3.5 rounded-xl hover:bg-red-700 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-bold transition-all"
         >
           {isLeaving ? (
             <>
@@ -661,7 +730,7 @@ function JoinLeaveSection({
           ) : (
             <>
               <X className="w-5 h-5" />
-              Leave This Project
+              Leave Project
             </>
           )}
         </button>
@@ -669,54 +738,48 @@ function JoinLeaveSection({
     )
   }
 
-  // ✅ THEN check if target is reached (for users NOT joined)
   if (isTargetReached) {
     return (
-      <div className="mb-8 bg-orange-50 border border-orange-200 rounded-xl p-6">
+      <div className="mb-8 bg-gradient-to-r from-orange-50 to-red-50 border-2 border-orange-200 rounded-2xl p-6">
         <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Users className="w-6 h-6 text-orange-600 flex-shrink-0" />
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-orange-600 rounded-full flex items-center justify-center flex-shrink-0">
+              <Users className="w-6 h-6 text-white" />
+            </div>
             <div>
-              <p className="text-orange-900 font-semibold">Target members reached</p>
+              <p className="text-orange-900 font-bold text-lg">Team Complete!</p>
               <p className="text-orange-700 text-sm mt-1">
-                This project is currently full ({currentMembers}/{targetMembers} members)
+                This project reached its target ({currentMembers}/{targetMembers} members)
               </p>
             </div>
           </div>
-          <button
-            disabled
-            className="bg-orange-500 text-white px-6 py-2 rounded-lg cursor-not-allowed opacity-75 whitespace-nowrap text-sm font-medium"
-          >
-            Join Waitlist
-          </button>
         </div>
       </div>
     )
   }
 
-  // ✅ Default: Available to join
   return (
     <div className="mb-8">
       <button
         onClick={onJoin}
         disabled={isJoining}
-        className="w-full sm:w-auto bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium transition-colors"
+        className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-blue-600 text-white px-10 py-4 rounded-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 font-bold text-lg transition-all transform hover:scale-105"
       >
         {isJoining ? (
           <>
-            <Loader2 className="w-5 h-5 animate-spin" />
+            <Loader2 className="w-6 h-6 animate-spin" />
             Joining...
           </>
         ) : (
           <>
-            <UserPlus className="w-5 h-5" />
+            <UserPlus className="w-6 h-6" />
             Join This Project
           </>
         )}
       </button>
       {targetMembers && (
-        <p className="text-sm text-gray-600 mt-2">
-          {currentMembers} / {targetMembers} members joined
+        <p className="text-sm text-gray-600 mt-3 font-medium">
+          {currentMembers} / {targetMembers} members • {targetMembers - currentMembers} spots remaining
         </p>
       )}
     </div>
@@ -727,17 +790,22 @@ function JoinLeaveSection({
 function Section({
   title,
   subtitle,
+  icon,
   children
 }: {
   title: string
   subtitle?: string
+  icon?: React.ReactNode
   children: React.ReactNode
 }) {
   return (
-    <div className="mb-8">
-      <div className="flex items-baseline justify-between mb-4">
-        <h2 className="text-xl font-bold text-gray-900">{title}</h2>
-        {subtitle && <span className="text-sm text-gray-500">{subtitle}</span>}
+    <div className="mb-10">
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-3">
+          {icon && <div className="text-purple-600">{icon}</div>}
+          <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+        </div>
+        {subtitle && <span className="text-sm text-gray-500 font-medium bg-gray-100 px-3 py-1 rounded-lg">{subtitle}</span>}
       </div>
       {children}
     </div>
@@ -747,10 +815,12 @@ function Section({
 // Empty Members Component
 function EmptyMembers() {
   return (
-    <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-      <Users className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-      <p className="text-gray-600 font-medium">No members yet</p>
-      <p className="text-gray-500 text-sm mt-1">Be the first to join this project!</p>
+    <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-purple-50/30 rounded-2xl border-2 border-dashed border-gray-300">
+      <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <Users className="w-8 h-8 text-purple-600" />
+      </div>
+      <p className="text-gray-700 font-bold text-lg mb-1">No members yet</p>
+      <p className="text-gray-500 text-sm">Be the first to join this amazing project!</p>
     </div>
   )
 }
@@ -758,7 +828,8 @@ function EmptyMembers() {
 // Member Card Component
 function MemberCard({ member, isCreator }: { member: Member; isCreator: boolean }) {
   const profile = member.profiles
-  const initials = (profile?.full_name || 'Anonymous')
+  const fullName = profile?.full_name || 'Anonymous'
+  const initials = fullName
     .split(' ')
     .map(n => n[0])
     .join('')
@@ -766,31 +837,38 @@ function MemberCard({ member, isCreator }: { member: Member; isCreator: boolean 
     .slice(0, 2)
 
   return (
-    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:border-purple-200 hover:bg-purple-50/50 transition-all">
-      <div className="flex items-center gap-3">
-        <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-blue-400 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
-          {profile?.avatar_url ? (
-            <img
-              src={profile.avatar_url}
-              alt={profile.full_name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <span className="text-white font-bold text-lg">{initials}</span>
+    <div className="bg-gradient-to-br from-gray-50 to-purple-50/30 rounded-2xl p-5 border-2 border-gray-200 hover:border-purple-300 hover:shadow-lg transition-all group">
+      <div className="flex items-center gap-4">
+        <div className="relative">
+          <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden group-hover:scale-110 transition-transform">
+            {profile?.avatar_url ? (
+              <img
+                src={profile.avatar_url}
+                alt={fullName}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-white font-bold text-xl">{initials}</span>
+            )}
+          </div>
+          {isCreator && (
+            <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center border-2 border-white">
+              <Star className="w-3 h-3 text-white" />
+            </div>
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <p className="font-semibold text-gray-900 truncate">
-              {profile?.full_name || 'Anonymous'}
+          <div className="flex items-center gap-2 mb-1">
+            <p className="font-bold text-gray-900 truncate text-lg">
+              {fullName}
             </p>
             {isCreator && (
-              <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-xs font-medium">
-                Project Initiator
+              <span className="bg-gradient-to-r from-purple-100 to-blue-100 text-purple-700 px-2 py-0.5 rounded-md text-xs font-bold border border-purple-200">
+                Creator
               </span>
             )}
           </div>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 font-medium">
             Joined {new Date(member.joined_at).toLocaleDateString('en-US', {
               month: 'short',
               day: 'numeric',
@@ -807,19 +885,28 @@ function MemberCard({ member, isCreator }: { member: Member; isCreator: boolean 
 function StatCard({
   value,
   label,
-  icon
+  icon,
+  color
 }: {
   value: string
   label: string
   icon: React.ReactNode
+  color: 'purple' | 'blue' | 'green' | 'orange'
 }) {
+  const gradients = {
+    purple: 'from-purple-500 to-purple-600',
+    blue: 'from-blue-500 to-blue-600',
+    green: 'from-green-500 to-green-600',
+    orange: 'from-orange-500 to-orange-600'
+  }
+
   return (
-    <div className="text-center">
-      <div className="inline-flex items-center justify-center w-10 h-10 bg-purple-50 rounded-lg mb-2">
+    <div className="bg-white rounded-xl p-5 border-2 border-gray-200 hover:border-purple-200 hover:shadow-lg transition-all">
+      <div className={`w-12 h-12 bg-gradient-to-br ${gradients[color]} rounded-xl flex items-center justify-center text-white mb-3 shadow-md`}>
         {icon}
       </div>
-      <div className="text-xl font-bold text-gray-900 mb-1">{value}</div>
-      <div className="text-sm text-gray-600">{label}</div>
+      <div className="text-2xl font-bold text-gray-900 mb-1">{value}</div>
+      <div className="text-sm text-gray-600 font-medium">{label}</div>
     </div>
   )
 }
