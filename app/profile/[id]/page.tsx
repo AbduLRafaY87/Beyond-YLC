@@ -248,7 +248,7 @@ export default function EnhancedProfilePage() {
                       </Link>
                     ) : (
                       <>
-                        <button
+                        <button disabled
                           onClick={handleFollow}
                           className={`inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-medium transition-all shadow-lg hover:shadow-xl hover:scale-105 text-sm sm:text-base ${isFollowing
                               ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -258,12 +258,12 @@ export default function EnhancedProfilePage() {
                           {isFollowing ? (
                             <>
                               <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                              Following
+                              {/* Following */}
                             </>
                           ) : (
                             <>
                               <UserPlus className="w-3 h-3 sm:w-4 sm:h-4" />
-                              Follow
+                              {/* Follow */}
                             </>
                           )}
                         </button>
