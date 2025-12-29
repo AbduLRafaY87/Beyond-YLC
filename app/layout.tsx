@@ -15,6 +15,9 @@ const poppins = Poppins({
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" type="image" href="/favicon.png" />
+      </head>
       <body>
         <AuthProvider>
           <Navbar />
