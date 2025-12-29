@@ -1,5 +1,6 @@
 'use client'
 
+import { Analytics } from '@vercel/analytics/next'
 import { AuthProvider } from '@/lib/AuthContext'
 import Navbar from './components/Navbar'
 import './globals.css'
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
           <Footer />
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   )
