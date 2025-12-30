@@ -1,9 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Users, Globe, Rocket, Heart, Handshake, BarChart3, GraduationCap, Star, Lightbulb, Trophy, Waves, Search, ChevronDown, ArrowRight, CheckCircle2 } from 'lucide-react'
-
 
 export default function Home() {
   const [scrollY, setScrollY] = useState(0)
@@ -13,38 +12,19 @@ export default function Home() {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY)
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveTestimonial((prev) => (prev + 1) % 3)
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [])
-
-  useEffect(() => {
-    const particles = Array.from({ length: 12 }, () => ({
+    const floatingParticlesData = Array.from({ length: 12 }, () => ({
       left: `${Math.random() * 100}%`,
       top: `${Math.random() * 100}%`,
       animationDelay: `${Math.random() * 5}s`,
       animationDuration: `${5 + Math.random() * 10}s`
     }))
-    setFloatingParticles(particles)
-  }, [])
-
-  useEffect(() => {
-    const particles = Array.from({ length: 50 }, () => ({
+    const twinkleParticlesData = Array.from({ length: 50 }, () => ({
       left: `${Math.random() * 100}%`,
       top: `${Math.random() * 100}%`,
       animationDelay: `${Math.random() * 3}s`
     }))
-    setTwinkleParticles(particles)
-  }, [])
-
-  useEffect(() => {
+    setFloatingParticles(floatingParticlesData)
+    setTwinkleParticles(twinkleParticlesData)
     setMounted(true)
   }, [])
 
@@ -169,7 +149,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-grid-pattern opacity-[0.01]"></div>
 
           {/* Floating Particles */}
-          {floatingParticles.map((particle, i) => (
+          {mounted && floatingParticles.map((particle, i) => (
             <div
               key={i}
               className="absolute w-2 h-2 bg-white rounded-full opacity-15 animate-float"
@@ -547,7 +527,7 @@ export default function Home() {
           <div className="absolute bottom-10 right-10 w-16 h-16 bg-white/15 rounded-full animate-ping"></div>
 
           {/* Twinkle particles */}
-          {twinkleParticles.map((particle, i) => (
+          {mounted && twinkleParticles.map((particle, i) => (
             <div
               key={i}
               className="absolute w-2 h-2 bg-white rounded-full animate-twinkle"

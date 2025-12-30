@@ -47,9 +47,9 @@ export default function ChangePasswordModal({ isOpen, onClose, onSubmit }: Chang
     try {
       await onSubmit(formData.newPassword)
       handleClose()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Password change error:', err)
-      setError(err.message || 'Failed to change password. Please try again.')
+      setError(err instanceof Error ? err.message : 'Failed to change password. Please try again.')
       setIsSubmitting(false)
     }
   }

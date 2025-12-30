@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/AuthContext'
 import { supabase } from '@/lib/supabase'
-import { Plus, Search, Filter, Grid, List, Users, Target, Calendar, MapPin, ArrowRight } from 'lucide-react'
+import { Plus, Search, Grid, List, Users, Target, Calendar, MapPin, ArrowRight } from 'lucide-react'
 
 interface SAP {
   id: string

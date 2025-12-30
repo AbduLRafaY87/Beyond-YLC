@@ -9,7 +9,6 @@ import {
   ArrowLeft,
   Target,
   FileText,
-  MapPin,
   Users,
   Calendar,
   Save,

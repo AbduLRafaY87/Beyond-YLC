@@ -21,56 +21,46 @@ interface Project {
 export default function ProjectsPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
-  const [projects, setProjects] = useState<Project[]>([])
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+const mockProjects: Project[] = [
+    {
+      id: '1',
+      title: 'Clean Water Initiative',
+      description: 'Providing clean water access to rural communities in Southeast Asia',
+      category: 'Environment',
+      status: 'active',
+      location: 'Thailand',
+      members: 12,
+      createdAt: '2024-01-15',
+      image: '/api/placeholder/400/250'
+    },
+    {
+      id: '2',
+      title: 'Digital Literacy Program',
+      description: 'Teaching coding and digital skills to underprivileged youth',
+      category: 'Education',
+      status: 'active',
+      location: 'Kenya',
+      members: 8,
+      createdAt: '2024-02-01',
+      image: '/api/placeholder/400/250'
+    },
+    {
+      id: '3',
+      title: 'Urban Gardening Network',
+      description: 'Creating community gardens in city neighborhoods',
+      category: 'Environment',
+      status: 'planning',
+      location: 'Brazil',
+      members: 5,
+      createdAt: '2024-01-28',
+      image: '/api/placeholder/400/250'
+    }
+  ]
+
+  const [projects, setProjects] = useState<Project[]>(mockProjects)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login')
-      return
-    }
-
-    // Mock data - replace with actual API call
-    const mockProjects: Project[] = [
-      {
-        id: '1',
-        title: 'Clean Water Initiative',
-        description: 'Providing clean water access to rural communities in Southeast Asia',
-        category: 'Environment',
-        status: 'active',
-        location: 'Thailand',
-        members: 12,
-        createdAt: '2024-01-15',
-        image: '/api/placeholder/400/250'
-      },
-      {
-        id: '2',
-        title: 'Digital Literacy Program',
-        description: 'Teaching coding and digital skills to underprivileged youth',
-        category: 'Education',
-        status: 'active',
-        location: 'Kenya',
-        members: 8,
-        createdAt: '2024-02-01',
-        image: '/api/placeholder/400/250'
-      },
-      {
-        id: '3',
-        title: 'Urban Gardening Network',
-        description: 'Creating community gardens in city neighborhoods',
-        category: 'Environment',
-        status: 'planning',
-        location: 'Brazil',
-        members: 5,
-        createdAt: '2024-01-28',
-        image: '/api/placeholder/400/250'
-      }
-    ]
-
-    setProjects(mockProjects)
-  }, [user, loading, router])
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   const filteredProjects = projects.filter(project => {
     const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

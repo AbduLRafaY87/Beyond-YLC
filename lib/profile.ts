@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
+import { User } from '@supabase/supabase-js'
 
-export async function ensureProfile(user: any) {
+export async function ensureProfile(user: User) {
   const { data } = await supabase
     .from('profiles')
     .select('id')

@@ -85,8 +85,8 @@ export default function NotFound() {
         {/* Fun Fact */}
         <div className="mt-8 p-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20">
           <p className="text-sm text-gray-600 italic">
-            "In the vast universe of the internet, even the best explorers get lost sometimes.
-            But every wrong turn leads to new discoveries!"
+            &ldquo;In the vast universe of the internet, even the best explorers get lost sometimes.
+            But every wrong turn leads to new discoveries!&rdquo;
           </p>
         </div>
       </div>

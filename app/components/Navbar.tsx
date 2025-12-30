@@ -3,15 +3,15 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
-import { Menu, X, Bell, User, LogOut, Settings, Sparkles, FilesIcon, File, SettingsIcon, BubblesIcon } from 'lucide-react'
+import { Menu, X, Bell, User, LogOut, Settings, BubblesIcon } from 'lucide-react'
 import { useAuth } from '@/lib/AuthContext'
 
 // Mock supabase for demo - replace with actual import
-const supabase = {
-  auth: {
-    signOut: () => console.log('Signed out')
-  }
-}
+// const supabase = {
+//   auth: {
+//     signOut: () => console.log('Signed out')
+//   }
+// }
 
 type NavLink = {
   label: string

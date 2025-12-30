@@ -12,7 +12,6 @@ import {
   List, 
   Users, 
   Target, 
-  Calendar, 
   MapPin, 
   ArrowRight, 
   UserPlus, 
@@ -53,35 +52,17 @@ type SortOption = 'newest' | 'oldest' | 'most_members' | 'least_members'
 export default function SAPHubPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
-  const [saps, setSaps] = useState<SAP[]>(() => {
-    if (typeof window !== 'undefined') {
-      const cached = sessionStorage.getItem('sapHubData')
-      return cached ? JSON.parse(cached) : []
-    }
-    return []
-  })
+
+  // State declarations
+  const [saps, setSaps] = useState<SAP[]>([])
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [selectedStatus, setSelectedStatus] = useState('all')
   const [sortBy, setSortBy] = useState<SortOption>('newest')
-  const [isLoading, setIsLoading] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const cached = sessionStorage.getItem('sapHubData')
-      const fetched = sessionStorage.getItem('sapHubFetched') === 'true'
-      return !fetched || !cached
-    }
-    return true
-  })
+  const [isLoading, setIsLoading] = useState(true)
   const [showFilters, setShowFilters] = useState(false)
-  const [hasFetched, setHasFetched] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return sessionStorage.getItem('sapHubFetched') === 'true'
-    }
-    return false
-  })
-  const [joiningProjects, setJoiningProjects] = useState<Set<string>>(new Set())
-  const [leavingProjects, setLeavingProjects] = useState<Set<string>>(new Set())
+  const [hasFetched, setHasFetched] = useState(false)
 
   useEffect(() => {
     if (!loading && !user) {
@@ -91,23 +72,14 @@ export default function SAPHubPage() {
 
     if (!user) return
 
-    // Always update from sessionStorage on mount to sync with changes from detail page
-    if (typeof window !== 'undefined') {
-      const cached = sessionStorage.getItem('sapHubData')
-      if (cached) {
-        const parsedData = JSON.parse(cached)
-        setSaps(parsedData)
-        setHasFetched(true)
-      }
-    }
-
-    // Only fetch if we haven't fetched before and we don't have data
-    if (!hasFetched && saps.length === 0) {
+    // Always fetch fresh data on mount to ensure we have the latest from database
+    // This prevents showing stale cached data when projects are deleted
+    if (!hasFetched) {
       fetchSAPs()
     } else {
       setIsLoading(false)
     }
-  }, [user, loading, router, hasFetched, saps.length])
+  }, [user, loading, router, hasFetched])
 
   // Sync with sessionStorage when page becomes visible (e.g., when navigating back from detail page)
   useEffect(() => {
@@ -240,9 +212,6 @@ export default function SAPHubPage() {
       return
     }
 
-    // Add to joining set
-    setJoiningProjects(prev => new Set(prev).add(sapId))
-
     try {
       const { error } = await supabase
         .from('project_members')
@@ -269,13 +238,6 @@ export default function SAPHubPage() {
     } catch (error) {
       console.error('Error joining SAP:', error)
       alert('Failed to join project. Please try again.')
-    } finally {
-      // Remove from joining set
-      setJoiningProjects(prev => {
-        const newSet = new Set(prev)
-        newSet.delete(sapId)
-        return newSet
-      })
     }
   }, [user, saps])
 
@@ -309,7 +271,7 @@ export default function SAPHubPage() {
   }, [user])
 
   const filteredAndSortedSAPs = useCallback(() => {
-    let filtered = saps.filter(sap => {
+    const filtered = saps.filter(sap => {
       const matchesSearch = 
         sap.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         sap.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -342,13 +304,6 @@ export default function SAPHubPage() {
 
   const categories = ['all', ...Array.from(new Set(saps.map(sap => sap.category)))]
   const statuses = ['all', 'idea', 'active', 'completed']
-
-  const stats = {
-    total: saps.length,
-    joined: saps.filter(s => s.isJoined).length,
-    active: saps.filter(s => s.status === 'active').length,
-    completed: saps.filter(s => s.status === 'completed' || s.status === 'complete').length
-  }
 
   const getStatusConfig = (status: string) => {
     const configs = {
