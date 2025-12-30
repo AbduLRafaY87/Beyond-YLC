@@ -1,10 +1,6 @@
-'use client'
-
-import { AuthProvider } from '@/lib/AuthContext'
-import Navbar from './components/Navbar'
+import ClientLayout from './components/ClientLayout'
 import './globals.css'
 import { Poppins } from 'next/font/google'
-import Footer from './components/Footer'
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -42,12 +38,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="manifest" href="/site.webmanifest" />
       </head>
-      <body>
-        <AuthProvider>
-          <Navbar />
+      <body className={poppins.className}>
+        <ClientLayout>
           {children}
-          <Footer />
-        </AuthProvider>
+        </ClientLayout>
       </body>
     </html>
   )

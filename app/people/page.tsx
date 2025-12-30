@@ -60,6 +60,11 @@ export default function PeoplePage() {
       const { data, error } = await query
 
       if (error) throw error
+
+      console.log('Fetched profiles:', data)
+      console.log('Current user ID:', user?.id)
+      console.log('Filtered profiles count:', data?.length || 0)
+
       setProfiles(data || [])
     } catch (error) {
       console.error('Error fetching profiles:', error)

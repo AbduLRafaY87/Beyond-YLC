@@ -59,13 +59,30 @@ export default function SignupPage() {
       setLoading(true)
       setError(null)
 
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password
       })
 
       if (error) {
         throw error
+      }
+
+      // Create profile record for the new user
+      if (data.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: data.user.id,
+            full_name: formData.fullName || null,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+
+        if (profileError) {
+          console.error('Error creating profile:', profileError)
+          // Don't throw here as the auth account was created successfully
+        }
       }
 
       alert('Account created successfully! Please check your email to verify your account.')

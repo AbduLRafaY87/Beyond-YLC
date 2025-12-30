@@ -53,14 +53,33 @@ type SortOption = 'newest' | 'oldest' | 'most_members' | 'least_members'
 export default function SAPHubPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
-  const [saps, setSaps] = useState<SAP[]>([])
+  const [saps, setSaps] = useState<SAP[]>(() => {
+    if (typeof window !== 'undefined') {
+      const cached = sessionStorage.getItem('sapHubData')
+      return cached ? JSON.parse(cached) : []
+    }
+    return []
+  })
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [selectedStatus, setSelectedStatus] = useState('all')
   const [sortBy, setSortBy] = useState<SortOption>('newest')
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const cached = sessionStorage.getItem('sapHubData')
+      const fetched = sessionStorage.getItem('sapHubFetched') === 'true'
+      return !fetched || !cached
+    }
+    return true
+  })
   const [showFilters, setShowFilters] = useState(false)
+  const [hasFetched, setHasFetched] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('sapHubFetched') === 'true'
+    }
+    return false
+  })
 
   useEffect(() => {
     if (!loading && !user) {
@@ -70,8 +89,20 @@ export default function SAPHubPage() {
 
     if (!user) return
 
-    fetchSAPs()
-  }, [user, loading, router])
+    // Only fetch if we haven't fetched before and we don't have data
+    if (!hasFetched && saps.length === 0) {
+      fetchSAPs()
+    } else {
+      setIsLoading(false)
+    }
+  }, [user, loading, router, hasFetched, saps.length])
+
+  // Reset loading state when component unmounts to prevent stale loading state
+  useEffect(() => {
+    return () => {
+      setIsLoading(false)
+    }
+  }, [])
 
   const fetchSAPs = async () => {
     if (!user) return
@@ -155,6 +186,11 @@ export default function SAPHubPage() {
       })
 
       setSaps(transformedSAPs)
+      setHasFetched(true)
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('sapHubData', JSON.stringify(transformedSAPs))
+        sessionStorage.setItem('sapHubFetched', 'true')
+      }
     } catch (error) {
       console.error('Error fetching SAPs:', error)
     } finally {
@@ -186,13 +222,15 @@ export default function SAPHubPage() {
       if (error) throw error
 
       // Update local state
-      setSaps(prevSaps =>
-        prevSaps.map(s =>
-          s.id === sapId
-            ? { ...s, members: s.members + 1, isJoined: true }
-            : s
-        )
+      const updatedSaps = prevSaps.map(s =>
+        s.id === sapId
+          ? { ...s, members: s.members + 1, isJoined: true }
+          : s
       )
+      setSaps(updatedSaps)
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('sapHubData', JSON.stringify(updatedSaps))
+      }
     } catch (error) {
       console.error('Error joining SAP:', error)
       alert('Failed to join project. Please try again.')

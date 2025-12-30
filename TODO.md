@@ -1,3 +1,11 @@
+# Performance Optimization TODO
+
+- [x] Fix site reloading on tab switches and slow content loading
+  - [x] Convert root layout from client-side to server-side component
+  - [x] Create ClientLayout wrapper for client-side features (AuthProvider, Navbar, Footer)
+  - [x] Test navigation to ensure client-side routing works properly
+  - [x] Verify performance improvements
+
 # SAP Hub Page Development TODO
 
 - [x] Update app/sap-hub/page.tsx with full-featured SAP listing page
