@@ -200,6 +200,21 @@ export default function SAPDetailPage() {
 
       setIsJoined(true)
       showMessage('success', 'Successfully joined the project!')
+
+      // Update sessionStorage to sync with hub page
+      if (typeof window !== 'undefined') {
+        const cachedData = sessionStorage.getItem('sapHubData')
+        if (cachedData) {
+          const parsedData = JSON.parse(cachedData)
+          const updatedData = parsedData.map((project: any) =>
+            project.id === sapId
+              ? { ...project, members: project.members + 1, isJoined: true }
+              : project
+          )
+          sessionStorage.setItem('sapHubData', JSON.stringify(updatedData))
+        }
+      }
+
       await fetchSAPDetails()
     } catch (error) {
       console.error('Error joining SAP:', error)
@@ -228,6 +243,21 @@ export default function SAPDetailPage() {
 
       setIsJoined(false)
       showMessage('success', 'Successfully left the project')
+
+      // Update sessionStorage to sync with hub page
+      if (typeof window !== 'undefined') {
+        const cachedData = sessionStorage.getItem('sapHubData')
+        if (cachedData) {
+          const parsedData = JSON.parse(cachedData)
+          const updatedData = parsedData.map((project: any) =>
+            project.id === sapId
+              ? { ...project, members: Math.max(0, project.members - 1), isJoined: false }
+              : project
+          )
+          sessionStorage.setItem('sapHubData', JSON.stringify(updatedData))
+        }
+      }
+
       await fetchSAPDetails()
     } catch (error) {
       console.error('Error leaving SAP:', error)

@@ -80,6 +80,8 @@ export default function SAPHubPage() {
     }
     return false
   })
+  const [joiningProjects, setJoiningProjects] = useState<Set<string>>(new Set())
+  const [leavingProjects, setLeavingProjects] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     if (!loading && !user) {
@@ -89,6 +91,16 @@ export default function SAPHubPage() {
 
     if (!user) return
 
+    // Always update from sessionStorage on mount to sync with changes from detail page
+    if (typeof window !== 'undefined') {
+      const cached = sessionStorage.getItem('sapHubData')
+      if (cached) {
+        const parsedData = JSON.parse(cached)
+        setSaps(parsedData)
+        setHasFetched(true)
+      }
+    }
+
     // Only fetch if we haven't fetched before and we don't have data
     if (!hasFetched && saps.length === 0) {
       fetchSAPs()
@@ -96,6 +108,24 @@ export default function SAPHubPage() {
       setIsLoading(false)
     }
   }, [user, loading, router, hasFetched, saps.length])
+
+  // Sync with sessionStorage when page becomes visible (e.g., when navigating back from detail page)
+  useEffect(() => {
+    if (!user) return
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden && typeof window !== 'undefined') {
+        const cached = sessionStorage.getItem('sapHubData')
+        if (cached) {
+          const parsedData = JSON.parse(cached)
+          setSaps(parsedData)
+        }
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [user])
 
   // Reset loading state when component unmounts to prevent stale loading state
   useEffect(() => {
@@ -210,6 +240,9 @@ export default function SAPHubPage() {
       return
     }
 
+    // Add to joining set
+    setJoiningProjects(prev => new Set(prev).add(sapId))
+
     try {
       const { error } = await supabase
         .from('project_members')
@@ -236,6 +269,13 @@ export default function SAPHubPage() {
     } catch (error) {
       console.error('Error joining SAP:', error)
       alert('Failed to join project. Please try again.')
+    } finally {
+      // Remove from joining set
+      setJoiningProjects(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(sapId)
+        return newSet
+      })
     }
   }, [user, saps])
 
