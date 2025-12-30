@@ -222,15 +222,17 @@ export default function SAPHubPage() {
       if (error) throw error
 
       // Update local state
-      const updatedSaps = prevSaps.map(s =>
-        s.id === sapId
-          ? { ...s, members: s.members + 1, isJoined: true }
-          : s
-      )
-      setSaps(updatedSaps)
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('sapHubData', JSON.stringify(updatedSaps))
-      }
+      setSaps(prevSaps => {
+        const updatedSaps = prevSaps.map(s =>
+          s.id === sapId
+            ? { ...s, members: s.members + 1, isJoined: true }
+            : s
+        )
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('sapHubData', JSON.stringify(updatedSaps))
+        }
+        return updatedSaps
+      })
     } catch (error) {
       console.error('Error joining SAP:', error)
       alert('Failed to join project. Please try again.')
